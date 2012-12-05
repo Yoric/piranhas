@@ -1,7 +1,6 @@
 (function () {
   "use strict";
   var eltMain = document.getElementById("main");
-  var stop = false;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -45,6 +44,21 @@
   };
   Piranha.prototype = Object.create(Sprite.prototype);
 
+  var Game = {
+    start: function start() {
+      requestAnimationFrame(step);
+    },
+    pause: function pause() {
+      if (this.isPaused) {
+        this.isPaused = false;
+        requestAnimationFrame(step);
+      } else {
+        this.isPaused = true;
+      }
+    },
+    isPaused: false
+  };
+
   var state = {
     delta: {
       x: 0,
@@ -65,7 +79,7 @@
       var element = document.createElement("div");
       var id = "piranha_" + i;
       element.id = id;
-      element.textContent = "Y";
+      element.className = "piranha";
       document.body.appendChild(element);
       var x = Math.random() * width;
       var y = Math.random() * height;
@@ -90,7 +104,7 @@
   }
 
   var step = function step(timestamp) {
-    if (stop) {
+    if (Game.isPaused) {
       return;
     }
     state.me.x += state.delta.x;
@@ -110,7 +124,6 @@
     state.me.update();
     requestAnimationFrame(step);
   };
-  requestAnimationFrame(step);
 
   // Handle inputs
 
@@ -139,12 +152,7 @@
           state.delta.x = 1;
         }
       } else if (code == KeyEvent.DOM_VM_ESCAPE || code == KeyEvent.DOM_VK_SPACE) {
-        if (stop) {
-          stop = false;
-          requestAnimationFrame(step);
-        } else {
-          stop = true;
-        }
+        Game.pause();
       }
       return;
     }
@@ -208,4 +216,6 @@
   window.addEventListener("touchstart", onmousedown);
   window.addEventListener("touchmove", onmousemove);
 
+
+  Game.start();
 })();

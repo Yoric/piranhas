@@ -1,5 +1,13 @@
 .piranha {
+    position:absolute;
     width: 32px;
     height: 32px;
     background-image: url("../img/liakad_piranha.png");
+}
+
+.sombrero {
+    position:absolute;
+    width: 32px;
+    height: 32px;
+    background-image: url("../img/sombrero_dave_pena_01.png");
 }

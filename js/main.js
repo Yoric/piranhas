@@ -1,6 +1,7 @@
 (function () {
   "use strict";
   var eltMain = document.getElementById("main");
+  var eltScore = document.getElementById("score");
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -10,6 +11,7 @@
       throw new Error("Could not find sprite element");
     }
     this._changed = true;
+    this.boundingRect = null;
     this.elt.style.position = "absolute";
   };
   Sprite.prototype = {
@@ -31,6 +33,34 @@
       this.elt.style.left = "" + this.x + "px";
       this.elt.style.top = "" + this.y + "px";
       this._changed = false;
+      this.boundingRect = this.elt.getBoundingClientRect();
+    },
+    collision: function collusion(sprite) {
+      if (!sprite) {
+        return false;
+      }
+      // FIXME: Make collision detection a little less harsh
+      var horiz =
+            (
+              (this.boundingRect.left <= sprite.boundingRect.left) && (this.boundingRect.right >= sprite.boundingRect.left)
+            ) ||
+            (
+              (this.boundingRect.left <= sprite.boundingRect.right) && (this.boundingRect.right >= sprite.boundingRect.right)
+            );
+      if (!horiz) {
+        return false;
+      }
+      var vert =
+            (
+              (this.boundingRect.top <= sprite.boundingRect.top) && (this.boundingRect.bottom >= sprite.boundingRect.top)
+            ) ||
+            (
+              (this.boundingRect.top <= sprite.boundingRect.bottom) && (this.boundingRect.bottom >= sprite.boundingRect.bottom)
+            );
+      return vert;
+    },
+    die: function die() {
+      this.elt.className = "";
     }
   };
 
@@ -46,17 +76,24 @@
 
   var Game = {
     start: function start() {
+      this.chunkStart = Date.now();
       requestAnimationFrame(step);
     },
     pause: function pause() {
+      if (this.isOver) {
+        return;
+      }
       if (this.isPaused) {
         this.isPaused = false;
-        requestAnimationFrame(step);
+        this.start();
       } else {
         this.isPaused = true;
       }
     },
-    isPaused: false
+    isPaused: false,
+    isOver: false,
+    chunkStart: null,
+    totalTime: 0
   };
 
   var state = {
@@ -104,15 +141,25 @@
   }
 
   var step = function step(timestamp) {
+    // Handle pause
+
+    var elapsed = timestamp - Game.chunkStart;
     if (Game.isPaused) {
+      Game.totalTime += elapsed;
       return;
     }
+
+    // Handle movement
     state.me.x += state.delta.x;
     state.me.y += state.delta.y;
     state.delta.x = 0;
     state.delta.y = 0;
+    state.me.update();
 
-    state.piranhas.forEach(function(fish) {
+    state.piranhas.forEach(function (fish) {
+      if (!fish) { // Don't update for fishes that have eaten each other
+        return;
+      }
       var delta = normalize(state.me.x - fish.x, state.me.y - fish.y);
       if (delta) {
         fish.x += delta.dx;
@@ -121,7 +168,43 @@
       }
     });
 
-    state.me.update();
+    // Handle score
+
+    eltScore.textContent = "Score: " + (Game.totalTime + elapsed);
+
+    // Detect collisions
+
+    for (var i = 0; i < state.piranhas.length; ++i) {
+      var fish = state.piranhas[i];
+      if (!fish) {
+        continue;
+      }
+      if (fish.collision(state.me)) {
+        state.me.die();
+        console.log("End of game");
+        return;
+        // FIXME: Report end of game
+      }
+      for (var j = i + 1; j < state.piranhas.length; ++j) {
+        var fish2 = state.piranhas[j];
+        if (!fish2) {
+          continue;
+        }
+        if (fish.collision(fish2)) {
+          state.piranhas[i] = null;
+          state.piranhas[j] = null;
+          fish.die();
+          fish2.die();
+          console.log("Removing fish");
+          // FIXME: Remove fish
+        }
+      }
+    }
+
+    // FIXME: Report victory
+
+    // Loop
+
     requestAnimationFrame(step);
   };
 

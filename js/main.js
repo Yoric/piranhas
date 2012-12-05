@@ -2,6 +2,7 @@
   "use strict";
   var eltMain = document.getElementById("main");
   var eltScore = document.getElementById("score");
+  var eltResult = document.getElementById("result");
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -13,8 +14,6 @@
     this._changed = true;
     this.boundingRect = null;
     this.elt.style.position = "absolute";
-    this.isDying = false;
-    this.dyingState = null;
   };
   Sprite.prototype = {
     get x() {
@@ -62,21 +61,12 @@
       return vert;
     },
     die: function die(timestamp) {
-      if (!this.isDying) {
-        this.isDying = true;
-        this.startedToDie = timestamp;
-        this.elt.classList.add("dying");
-        this.elt.addEventListener("transition", function() {
-          this.elt.classList.remove("dead");
-          this.elt.classList.add("dead");
-        });
-        console.log("Class name", this.elt.className);
-      }
-      if (timestamp - this.startedToDie >= 1000) {
-        this.isDying = false;
-        return true;
-      }
-      return false;
+      var self = this;
+      self.elt.classList.add("dying");
+      self.elt.addEventListener("transition", function() {
+        self.elt.classList.remove("dead");
+        self.elt.classList.add("dead");
+      });
     }
   };
 
@@ -84,14 +74,63 @@
     Sprite.call(this, id, x, y);
   };
   Me.prototype = Object.create(Sprite.prototype);
+  Me.prototype.reset = function reset() {
+    this.elt.classList.remove("dead");
+    this.elt.classList.remove("dying");
+  };
 
   var Piranha = function Piranha(id, x, y) {
     Sprite.call(this, id, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
 
+  var randomNotCenter = function randomNotCenter() {
+    var random = Math.random();
+    var result;
+    if (random < 0.5) {
+      result = random / 2;
+    } else {
+      result = (1 - random) / 2 + 0.5;
+    }
+    return result;
+  };
+
   var Game = {
     start: function start() {
+      // Reset PC
+      state.me.reset();
+
+      // Reset enemies
+      var piranhas = document.getElementsByClassName("piranha");
+      var i;
+      var element;
+      console.log("We have", piranhas.length, "piranhas to remove");
+      while (piranhas.length) {
+        element = piranhas[0];
+        console.log("Removing", element.id);
+        element.parentElement.removeChild(element);
+      }
+
+      const ENEMIES = 8;
+      piranhas = [];
+      var width = eltMain.clientWidth;
+      var height = eltMain.clientHeight;
+      for (i = 0; i < ENEMIES; ++i) {
+        element = document.createElement("div");
+        var id = "piranha_" + i;
+        element.id = id;
+        element.className = "piranha";
+        document.body.appendChild(element);
+        var x = randomNotCenter() * width;
+        var y = randomNotCenter() * height;
+        var fish = new Piranha(id, x, y);
+        fish.update();
+        piranhas.push(fish);
+      }
+      state.piranhas = piranhas;
+      state.me.x = width / 2;
+      state.me.y = height / 2;
+
       this.chunkStart = Date.now();
       requestAnimationFrame(step);
     },
@@ -106,6 +145,27 @@
         this.isPaused = true;
       }
     },
+    over: function over(isVictory) {
+      eltResult.classList.remove("hidden");
+      var text;
+      if (isVictory) {
+        text = "Victory!";
+      } else {
+        text = "Defeat :(";
+      }
+      text += " (click anywhere to restart)";
+      eltResult.textContent = text;
+      var restart = function restart() {
+        window.removeEventListener("click", restart);
+        window.removeEventListener("touchend", restart);
+        eltResult.classList.add("hidden");
+        return Game.start();
+      };
+      window.setTimeout(function() {
+        window.addEventListener("click", restart);
+        window.addEventListener("touchend", restart);
+      }, 500);
+    },
     isPaused: false,
     isOver: false,
     chunkStart: null,
@@ -117,31 +177,12 @@
       x: 0,
       y: 0
     },
-    me: new Me("me", 100, 100),
+    me: new Me("me"),
     piranhas: null
   };
 
   // Create the piranhas
 
-  (function() {
-    const ENEMIES = 6;
-    var piranhas = [];
-    var width = eltMain.clientWidth;
-    var height = eltMain.clientHeight;
-    for (var i = 0; i < ENEMIES; ++i) {
-      var element = document.createElement("div");
-      var id = "piranha_" + i;
-      element.id = id;
-      element.className = "piranha";
-      document.body.appendChild(element);
-      var x = Math.random() * width;
-      var y = Math.random() * height;
-      var fish = new Piranha(id, x, y);
-      fish.update();
-      piranhas.push(fish);
-    }
-    state.piranhas = piranhas;
-  })();
 
   // Main event loop
 
@@ -197,21 +238,10 @@
         continue;
       }
       anyFish = true;
-      if (fish.isDying) {
-        // Continue dying animation
-        if (fish.die(timestamp)) {
-          state.piranhas[i] = null;
-        }
-        continue;
-      }
       if (fish.collision(state.me)) {
         state.me.die();
-        var result = document.getElementById("result");
-        result.classList.remove("hidden");
-        result.textContent = "Defeat :(";
-        console.log("Defeat");
+        Game.over(false);
         return;
-        // FIXME: Report end of game
       }
       for (var j = i + 1; j < state.piranhas.length; ++j) {
         var fish2 = state.piranhas[j];
@@ -221,14 +251,15 @@
         if (fish.collision(fish2)) {
           fish.die(timestamp);
           fish2.die(timestamp);
-          // FIXME: Remove fish
+          state.piranhas[i] = null;
+          state.piranhas[j] = null;
+          // Will be removed at the next stage
         }
       }
     }
 
     if (!anyFish) {
-      // FIXME: Report victory
-      console.log("Victory");
+      Game.over(true);
       return;
     }
 
@@ -327,12 +358,6 @@
   window.addEventListener("mouseup", onmouseup);
   window.addEventListener("touchstart", onmousedown);
   window.addEventListener("touchmove", onmousemove);
-
-
-  // Pause handler
-  window.navigator.addIdleObserver(function() {
-    console.log("idle");
-  });
 
   Game.start();
 })();

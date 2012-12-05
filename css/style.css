@@ -2,12 +2,40 @@
     position:absolute;
     width: 32px;
     height: 32px;
+    background-size: 100%;
     background-image: url("../img/liakad_piranha.png");
 }
-
+.dying {
+    width: 0px !important;
+    height: 0px !important;
+    transition: all 1s;
+}
+.dead {
+}
 .sombrero {
     position:absolute;
     width: 32px;
     height: 32px;
+    background-size: 100%;
     background-image: url("../img/sombrero_dave_pena_01.png");
+}
+
+.score {
+    font-size: large;
+    color: red;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    font-family: 'Nanum brush script', 'Chalkduster', 'Chalkboard';
+}
+.result {
+    font-size: x-large;
+    text-align: center;
+    margin-top: 30%;
+    margin-bottom: auto;
+    width: 100%;
+    height: 100%;
+}
+.hidden {
+    display: none;
 }

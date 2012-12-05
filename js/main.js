@@ -13,6 +13,8 @@
     this._changed = true;
     this.boundingRect = null;
     this.elt.style.position = "absolute";
+    this.isDying = false;
+    this.dyingState = null;
   };
   Sprite.prototype = {
     get x() {
@@ -59,8 +61,22 @@
             );
       return vert;
     },
-    die: function die() {
-      this.elt.className = "";
+    die: function die(timestamp) {
+      if (!this.isDying) {
+        this.isDying = true;
+        this.startedToDie = timestamp;
+        this.elt.classList.add("dying");
+        this.elt.addEventListener("transition", function() {
+          this.elt.classList.remove("dead");
+          this.elt.classList.add("dead");
+        });
+        console.log("Class name", this.elt.className);
+      }
+      if (timestamp - this.startedToDie >= 1000) {
+        this.isDying = false;
+        return true;
+      }
+      return false;
     }
   };
 
@@ -108,7 +124,7 @@
   // Create the piranhas
 
   (function() {
-    const ENEMIES = 5;
+    const ENEMIES = 6;
     var piranhas = [];
     var width = eltMain.clientWidth;
     var height = eltMain.clientHeight;
@@ -157,7 +173,7 @@
     state.me.update();
 
     state.piranhas.forEach(function (fish) {
-      if (!fish) { // Don't update for fishes that have eaten each other
+      if (!fish || fish.isDying) { // Don't update for fishes that have eaten each other
         return;
       }
       var delta = normalize(state.me.x - fish.x, state.me.y - fish.y);
@@ -174,14 +190,26 @@
 
     // Detect collisions
 
+    var anyFish = false;
     for (var i = 0; i < state.piranhas.length; ++i) {
       var fish = state.piranhas[i];
       if (!fish) {
         continue;
       }
+      anyFish = true;
+      if (fish.isDying) {
+        // Continue dying animation
+        if (fish.die(timestamp)) {
+          state.piranhas[i] = null;
+        }
+        continue;
+      }
       if (fish.collision(state.me)) {
         state.me.die();
-        console.log("End of game");
+        var result = document.getElementById("result");
+        result.classList.remove("hidden");
+        result.textContent = "Defeat :(";
+        console.log("Defeat");
         return;
         // FIXME: Report end of game
       }
@@ -191,17 +219,18 @@
           continue;
         }
         if (fish.collision(fish2)) {
-          state.piranhas[i] = null;
-          state.piranhas[j] = null;
-          fish.die();
-          fish2.die();
-          console.log("Removing fish");
+          fish.die(timestamp);
+          fish2.die(timestamp);
           // FIXME: Remove fish
         }
       }
     }
 
-    // FIXME: Report victory
+    if (!anyFish) {
+      // FIXME: Report victory
+      console.log("Victory");
+      return;
+    }
 
     // Loop
 
@@ -299,6 +328,11 @@
   window.addEventListener("touchstart", onmousedown);
   window.addEventListener("touchmove", onmousemove);
 
+
+  // Pause handler
+  window.navigator.addIdleObserver(function() {
+    console.log("idle");
+  });
 
   Game.start();
 })();

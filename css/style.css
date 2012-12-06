@@ -29,10 +29,13 @@
     font-family: 'Nanum brush script', 'Chalkduster', 'Chalkboard';
 }
 .result {
+    left: 0pt;
+    top: 0pt;
+    position:absolute;
     font-size: x-large;
     text-align: center;
-    margin-top: 30%;
-    margin-bottom: auto;
+    padding-top: 30%;
+    padding-bottom: auto;
     width: 100%;
     height: 100%;
 }

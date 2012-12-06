@@ -156,14 +156,14 @@
       text += " (click anywhere to restart)";
       eltResult.textContent = text;
       var restart = function restart() {
-        window.removeEventListener("click", restart);
-        window.removeEventListener("touchend", restart);
+        document.removeEventListener("click", restart);
+        document.removeEventListener("touchend", restart);
         eltResult.classList.add("hidden");
         return Game.start();
       };
-      window.setTimeout(function() {
-        window.addEventListener("click", restart);
-        window.addEventListener("touchend", restart);
+      document.setTimeout(function() {
+        document.addEventListener("click", restart);
+        document.addEventListener("touchend", restart);
       }, 500);
     },
     isPaused: false,
@@ -338,14 +338,14 @@
     }
   };
   var onmousedown = function onmousedown(event) {
-    window.addEventListener("mousemove", onmousemove);
+    document.addEventListener("mousemove", onmousemove);
     mouse.down = true;
     mouse.x = event.clientX;
     mouse.y = event.clientY;
     requestAnimationFrame(mousestep);
   };
   var onmouseup = function onmouseup(event) {
-    window.removeEventListener("mousemove", onmousemove);
+    document.removeEventListener("mousemove", onmousemove);
     mouse.down = false;
   };
   var onmousemove = function onmousemove(event) {
@@ -353,11 +353,11 @@
     mouse.y = event.clientY;
   };
 
-  window.addEventListener("keypress", onkeypress);
-  window.addEventListener("mousedown", onmousedown);
-  window.addEventListener("mouseup", onmouseup);
-  window.addEventListener("touchstart", onmousedown);
-  window.addEventListener("touchmove", onmousemove);
+  document.addEventListener("keypress", onkeypress);
+  document.addEventListener("mousedown", onmousedown);
+  document.addEventListener("mouseup", onmouseup);
+  document.addEventListener("touchstart", onmousedown);
+  document.addEventListener("touchmove", onmousemove);
 
   Game.start();
 })();

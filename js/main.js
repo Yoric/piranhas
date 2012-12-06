@@ -161,7 +161,7 @@
         eltResult.classList.add("hidden");
         return Game.start();
       };
-      document.setTimeout(function() {
+      window.setTimeout(function() {
         document.addEventListener("click", restart);
         document.addEventListener("touchend", restart);
       }, 500);

@@ -4,7 +4,8 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
 
-  const SPEED = 0.1;
+  const PLAYER_SPEED = 0.3;
+  const PIRANHA_SPEED = 0.2;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -92,7 +93,7 @@
     if (random < 0.5) {
       result = random / 2;
     } else {
-      result = (1 - random) / 2 + 0.5;
+      result = (1 - random) / 2 + 0.75;
     }
     return result;
   };
@@ -113,7 +114,7 @@
         element.parentElement.removeChild(element);
       }
 
-      const ENEMIES = 8;
+      const ENEMIES = 18;
       piranhas = [];
       var width = eltMain.clientWidth;
       var height = eltMain.clientHeight;
@@ -205,7 +206,8 @@
     var duration = timestamp - Game.timestamp;
     Game.timestamp = timestamp;
 
-    var multiply = duration * SPEED;
+    var player_multiply = duration * PLAYER_SPEED;
+    var piranha_multiply = duration * PIRANHA_SPEED;
 
     var elapsed = timestamp - Game.chunkStart;
     if (Game.isPaused) {
@@ -214,8 +216,8 @@
     }
 
     // Handle movement
-    state.me.x += state.delta.x * multiply;
-    state.me.y += state.delta.y * multiply;
+    state.me.x += state.delta.x * player_multiply;
+    state.me.y += state.delta.y * piranha_multiply;
     state.delta.x = 0;
     state.delta.y = 0;
     state.me.update();
@@ -226,8 +228,8 @@
       }
       var delta = normalize(state.me.x - fish.x, state.me.y - fish.y);
       if (delta) {
-        fish.x += delta.dx * multiply;
-        fish.y += delta.dy * multiply;
+        fish.x += delta.dx * piranha_multiply;
+        fish.y += delta.dy * piranha_multiply;
         fish.update();
       }
     });

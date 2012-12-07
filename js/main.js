@@ -342,9 +342,7 @@
       state.delta.y = delta.dy;
     }
 
-    if (mouse.down) {
-      requestAnimationFrame(mousestep);
-    }
+    requestAnimationFrame(mousestep);
   };
   var onmousedown = function onmousedown(event) {
     document.addEventListener("mousemove", onmousemove);
@@ -361,10 +359,12 @@
     mouse.x = event.clientX;
     mouse.y = event.clientY;
   };
+    requestAnimationFrame(mousestep);
 
   document.addEventListener("keypress", onkeypress);
-  document.addEventListener("mousedown", onmousedown);
-  document.addEventListener("mouseup", onmouseup);
+//  document.addEventListener("mousedown", onmousedown);
+//  document.addEventListener("mouseup", onmouseup);
+  document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchstart", onmousedown);
   document.addEventListener("touchmove", onmousemove);
 

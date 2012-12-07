@@ -334,6 +334,8 @@
       state.delta.x = delta.dx;
       state.delta.y = delta.dy;
     }
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   document.addEventListener("keypress", onkeypress);

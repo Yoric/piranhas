@@ -218,8 +218,6 @@
     // Handle movement
     state.me.x += state.delta.x * player_multiply;
     state.me.y += state.delta.y * piranha_multiply;
-    state.delta.x = 0;
-    state.delta.y = 0;
     state.me.update();
 
     state.piranhas.forEach(function (fish) {
@@ -327,45 +325,19 @@
     return {dx: dx, dy: dy};
   };
 
-  var mouse = {
-    down: false,
-    x: null,
-    y: null
-  };
-  var mousestep = function mousestep() {
-    var dx = mouse.x - state.me.x;
-    var dy = mouse.y - state.me.y;
+  var onmousemove = function onmousemove(event) {
+    var dx = event.clientX - state.me.x;
+    var dy = event.clientY - state.me.y;
 
     var delta = normalize(dx, dy);
     if (delta) {
       state.delta.x = delta.dx;
       state.delta.y = delta.dy;
     }
-
-    requestAnimationFrame(mousestep);
   };
-  var onmousedown = function onmousedown(event) {
-    document.addEventListener("mousemove", onmousemove);
-    mouse.down = true;
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
-    requestAnimationFrame(mousestep);
-  };
-  var onmouseup = function onmouseup(event) {
-    document.removeEventListener("mousemove", onmousemove);
-    mouse.down = false;
-  };
-  var onmousemove = function onmousemove(event) {
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
-  };
-    requestAnimationFrame(mousestep);
 
   document.addEventListener("keypress", onkeypress);
-//  document.addEventListener("mousedown", onmousedown);
-//  document.addEventListener("mouseup", onmouseup);
   document.addEventListener("mousemove", onmousemove);
-  document.addEventListener("touchstart", onmousedown);
   document.addEventListener("touchmove", onmousemove);
 
   Game.start();

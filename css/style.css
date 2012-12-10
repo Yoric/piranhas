@@ -1,4 +1,19 @@
+* {
+    color: white;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: large;
+}
+body {
+    background-color: black
+}
+#main {
+    background-color: black;
+}
+.sprite {
+}
 .piranha {
+    z-index: 2;
     position:absolute;
     width: 32px;
     height: 32px;
@@ -13,6 +28,7 @@
 .dead {
 }
 .sombrero {
+    z-index: 1;
     position:absolute;
     width: 32px;
     height: 32px;
@@ -26,9 +42,10 @@
     width: 100%;
     text-align: center;
     position: absolute;
-    font-family: 'Nanum brush script', 'Chalkduster', 'Chalkboard';
 }
 .result {
+    background-color: none;
+    z-index: 3;
     left: 0pt;
     top: 0pt;
     position:absolute;

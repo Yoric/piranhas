@@ -122,7 +122,8 @@
         element = document.createElement("div");
         var id = "piranha_" + i;
         element.id = id;
-        element.className = "piranha";
+        element.classList.add("piranha");
+        element.classList.add("sprite");
         document.body.appendChild(element);
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
@@ -224,7 +225,7 @@
       if (!fish || fish.isDying) { // Don't update for fishes that have eaten each other
         return;
       }
-      var delta = normalize(state.me.x - fish.x, state.me.y - fish.y);
+      var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
       if (delta) {
         fish.x += delta.dx * piranha_multiply;
         fish.y += delta.dy * piranha_multiply;
@@ -309,7 +310,7 @@
     console.error("Could not determine key");
   };
 
-  var normalize = function normalize(dx, dy) {
+  var normalizeDelta = function normalizeDelta(dx, dy) {
     var norm = Math.sqrt( dx * dx + dy * dy);
     if (norm == 0) {
       return null;
@@ -329,7 +330,7 @@
     var dx = event.clientX - state.me.x;
     var dy = event.clientY - state.me.y;
 
-    var delta = normalize(dx, dy);
+    var delta = normalizeDelta(dx, dy);
     if (delta) {
       state.delta.x = delta.dx;
       state.delta.y = delta.dy;

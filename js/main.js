@@ -3,6 +3,7 @@
   var eltMain = document.getElementById("main");
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
+  var eltResultPane = document.getElementById("result_pane");
 
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
@@ -34,8 +35,8 @@
       this._changed = true;
     },
     update: function update() {
-      this.elt.style.left = "" + this.x + "px";
-      this.elt.style.top = "" + this.y + "px";
+      this.elt.style.left = this.x + "px";
+      this.elt.style.top = this.y + "px";
       this._changed = false;
       this.boundingRect = this.elt.getBoundingClientRect();
     },
@@ -151,19 +152,18 @@
       }
     },
     over: function over(isVictory) {
-      eltResult.classList.remove("hidden");
+      eltResultPane.classList.remove("hidden");
       var text;
       if (isVictory) {
         text = "Victory!";
       } else {
         text = "Defeat :(";
       }
-      text += " (click anywhere to restart)";
       eltResult.textContent = text;
       var restart = function restart() {
         document.removeEventListener("click", restart);
         document.removeEventListener("touchend", restart);
-        eltResult.classList.add("hidden");
+        eltResultPane.classList.add("hidden");
         return Game.start();
       };
       window.setTimeout(function() {

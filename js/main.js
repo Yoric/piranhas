@@ -136,6 +136,8 @@
       state.me.x = width / 2;
       state.me.y = height / 2;
 
+	  //need to reset score after a pause
+	  Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
       requestAnimationFrame(step);
@@ -146,7 +148,10 @@
       }
       if (this.isPaused) {
         this.isPaused = false;
-        this.start();
+        //reset game if uncomment this.start();
+		this.chunkStart = Date.now();
+		this.timestamp = Date.now();
+		requestAnimationFrame(step);
       } else {
         this.isPaused = true;
       }

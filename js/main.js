@@ -339,7 +339,7 @@
     event.stopPropagation();
   };
 
-  document.addEventListener("keypress", onkeypress);
+  window.addEventListener("keypress", onkeypress);
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);
 

@@ -155,9 +155,9 @@
       eltResultPane.classList.remove("hidden");
       var text;
       if (isVictory) {
-        text = "Victory!";
+        text = "Victoria, my sombrero!";
       } else {
-        text = "Defeat :(";
+        text = "Game over, my sombrero! :(";
       }
       eltResult.textContent = text;
       var restart = function restart() {
@@ -239,13 +239,12 @@
 
     // Detect collisions
 
-    var anyFish = false;
+    var remainingFish = 0;
     for (var i = 0; i < state.piranhas.length; ++i) {
       var fish = state.piranhas[i];
       if (!fish) {
         continue;
       }
-      anyFish = true;
       if (fish.collision(state.me)) {
         state.me.die();
         Game.over(false);
@@ -264,9 +263,13 @@
           // Will be removed at the next stage
         }
       }
+      if (fish) {
+        ++remainingFish;
+      }
     }
 
-    if (!anyFish) {
+    // Victory if there is 0 or 1 fish
+    if (remainingFish <= 1) {
       Game.over(true);
       return;
     }
@@ -310,9 +313,10 @@
     console.error("Could not determine key");
   };
 
+  const EPSILON = 0.01;
   var normalizeDelta = function normalizeDelta(dx, dy) {
     var norm = Math.sqrt( dx * dx + dy * dy);
-    if (norm == 0) {
+    if (norm <= EPSILON) {
       return null;
     }
     dx = dx / norm;
@@ -327,6 +331,14 @@
   };
 
   var onmousemove = function onmousemove(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.target == state.me.elt) {
+      console.log("Touching me");
+      state.delta.x = 0;
+      state.delta.y = 0;
+      return;
+    }
     var dx = event.clientX - state.me.x;
     var dy = event.clientY - state.me.y;
 
@@ -335,8 +347,6 @@
       state.delta.x = delta.dx;
       state.delta.y = delta.dy;
     }
-    event.preventDefault();
-    event.stopPropagation();
   };
 
   window.addEventListener("keypress", onkeypress);

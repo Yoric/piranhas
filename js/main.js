@@ -98,7 +98,36 @@
     }
     return result;
   };
-
+  
+  // on fait en sorte de trouver une position à l'opposé du sombrero
+  var randomNotPositionSombrero = function randomNotPositionSombrero() 
+  {
+	var random = Math.random();
+	var result = new Array();
+	var width = eltMain.clientWidth;
+	var height = eltMain.clientHeight;
+	
+	if(state.me.x <= width/2)
+	{
+		result[0] = width-35;
+	}
+	else
+	{	
+		result[0] = 35;
+	}
+	
+	if(state.me.y <= height/2)
+	{
+		result[1] = height-35;
+	}
+	else
+	{	
+		result[1] = 35;
+	}
+	
+    return result;
+  };
+  
   var Game = {
     start: function start() {
       // Reset PC
@@ -140,6 +169,11 @@
       Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
+      this.timeAddPiranhas = Date.now();
+	  
+	  // Mode infini
+	  this.infinityMode = true;
+	  
       requestAnimationFrame(step);
     },
     pause: function pause() {
@@ -208,7 +242,41 @@
   }
 
   var step = function step(timestamp) {
-    // Handle pause
+    
+	// si nous sommes dans le mode infini
+	if(Game.infinityMode)
+	{
+		// Ajout de piranhas toutes les secondes
+		if(Date.now() - Game.timeAddPiranhas > 1000)
+		{
+			Game.timeAddPiranhas = Date.now();
+			var i;
+			var element;
+			var nbrePiranhas = state.piranhas.length;
+			const ENEMIES = 1;
+			
+			for (i = nbrePiranhas; i < ENEMIES+nbrePiranhas; ++i) 
+			{
+				var id = "piranha_" + i;
+				
+				element = document.createElement("div");
+				var id = "piranha_" + i;
+				element.id = id;
+				element.classList.add("piranha");
+				element.classList.add("sprite");
+				document.body.appendChild(element);
+				
+				var tabCoordoneesFish = randomNotPositionSombrero();
+				var x = tabCoordoneesFish[0];
+				var y = tabCoordoneesFish[1];
+				var fish = new Piranha(id, x, y);
+				fish.update();
+				state.piranhas.push(fish);
+			}
+		}
+	}
+	
+	// Handle pause
     var duration = timestamp - Game.timestamp;
     Game.timestamp = timestamp;
 
@@ -275,8 +343,12 @@
 
     // Victory if there is 0 or 1 fish
     if (remainingFish <= 1) {
-      Game.over(true);
-      return;
+      // si nous ne sommes pas dans le mode infini
+		if(!Game.infinityMode)
+		{
+			Game.over(true);
+			return;
+		}
     }
 
     // Loop

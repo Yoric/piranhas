@@ -17,8 +17,7 @@ body {
     position:absolute;
     width: 32px;
     height: 32px;
-    background-size: 100%;
-    background-image: url("../img/liakad_piranha_03.png");
+    background: url("../img/sombrero_piranha.png") 32px 0;
 }
 .dying {
     width: 0px !important;
@@ -32,8 +31,7 @@ body {
     position:absolute;
     width: 32px;
     height: 32px;
-    background-size: 100%;
-    background-image: url("../img/sombrero_dave_pena_03.png");
+    background: url("../img/sombrero_piranha.png") 0 32px;
 }
 
 .score {

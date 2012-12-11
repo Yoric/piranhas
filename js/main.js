@@ -4,6 +4,9 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var restartButton = document.getElementById("restart");
+  
+
 
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
@@ -159,17 +162,15 @@
       } else {
         text = "Game over, my sombrero! :(";
       }
-      eltResult.textContent = text;
+      eventModal(text);
       var restart = function restart() {
-        document.removeEventListener("click", restart);
-        document.removeEventListener("touchend", restart);
+        restartButton.removeEventListener("click", restart);
         eltResultPane.classList.add("hidden");
+        eventHideModal();
         return Game.start();
       };
-      window.setTimeout(function() {
-        document.addEventListener("click", restart);
-        document.addEventListener("touchend", restart);
-      }, 500);
+      restartButton.addEventListener('click',restart);
+
     },
     isPaused: false,
     isOver: false,
@@ -201,6 +202,42 @@
     alert("This application requires a browser implementing requestAnimationFrame");
     throw new Error("This application requires a browser implementing requestAnimationFrame");
   }
+
+
+
+  var eventModal = function (text){
+    var dialog = document.getElementById("dialog");
+    var message = document.getElementById('messageEnd');
+    var scoreFinal = document.getElementById('scoreFinal')
+    message.innerHTML= text;
+
+    var maskWidth = window.innerWidth;
+    var maskHeight = window.innerHeight;
+    var mask = document.getElementById("mask");
+    mask.style.width = maskWidth+"px";
+    mask.style.height = maskHeight+"px";
+
+
+    mask.style.display = "block";
+
+    dialog.style.width = maskWidth/3+"px";
+    dialog.style.height = maskHeight/3+"px";
+    dialog.style.left = Math.round(maskWidth/3)+"px";
+    dialog.style.top = Math.round(maskHeight/3)+"px";
+    dialog.style.display = "block";
+    dialog.style.background = "white";
+    dialog.style.color = "black !important";
+    scoreFinal.textContent = eltScore.textContent;
+
+ }
+
+ var eventHideModal = function (text){
+    var dialog = document.getElementById("dialog");
+    var mask = document.getElementById("mask");
+    dialog.style.display = "none";
+    mask.style.display = "none";
+
+ }
 
   var step = function step(timestamp) {
     // Handle pause

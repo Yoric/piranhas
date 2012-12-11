@@ -1,14 +1,16 @@
 * {
-    color: white;
+    
     font-family: "Synchro LET", monospace;
     font-weight: bold;
     font-size: x-large;
 }
 body {
     background-color: black
+
 }
 #main {
     background-color: black;
+    margin: 0;
 }
 .sprite {
 }
@@ -54,4 +56,30 @@ body {
 }
 .hidden {
     display: none;
+}
+
+/* Z-index of #mask must lower than #boxes .window */
+#mask {
+  position:absolute;
+  z-index:9000;
+  background-color:red;
+  display:none;
+  opacity:0.5;
+  top: 0;
+  left: 0;
+}
+   
+#dialog{
+  position:absolute;
+  display:none;
+  z-index:9999;
+  padding:20px;
+  text-align: center;
+}
+#restart{
+  cursor: pointer;
+}
+ 
+#scoreFinal {
+  color : red;
 }

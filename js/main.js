@@ -352,8 +352,8 @@
   };
 
   window.addEventListener("keypress", onkeypress);
+  window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);
-  window.onblur = function(){Game.onblur();};
   Game.start();
 })();

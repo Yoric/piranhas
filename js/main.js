@@ -5,8 +5,8 @@
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
 
-  const PLAYER_SPEED = 0.3;
-  const PIRANHA_SPEED = 0.2;
+  var PLAYER_SPEED = 0.3;
+  var PIRANHA_SPEED = 0.2;
   var collisionMargin = 3;
 
   var Sprite = function Sprite(id, x, y) {
@@ -122,7 +122,7 @@
         element.parentElement.removeChild(element);
       }
 
-      const ENEMIES = 18;
+      var ENEMIES = 18;
       piranhas = [];
       var width = eltMain.clientWidth;
       var height = eltMain.clientHeight;
@@ -333,7 +333,7 @@
     console.error("Could not determine key");
   };
 
-  const EPSILON = 0.01;
+  var EPSILON = 0.01;
   var normalizeDelta = function normalizeDelta(dx, dy) {
     var norm = Math.sqrt( dx * dx + dy * dy);
     if (norm <= EPSILON) {

@@ -26,14 +26,33 @@
     get y() {
       return this._y;
     },
-    set x(x) {
-      this._x = x;
+     set x(x) {
+      if(this.x >=0 && this.x<=eltMain.clientWidth){
+    this._x = x;
       this._changed = true;
+	 }
+	 if(this.x>eltMain.clientWidth){
+	 this._x = x-eltMain.clientWidth;
+     this._changed = true;
+	 }
+	 if(this.x<0){
+	 this._x = eltMain.clientWidth+x;
+     this._changed = true;
+	 }
     },
     set y(y) {
+	if(this.y >=0 && this.y<=eltMain.clientHeight){
       this._y = y;
       this._changed = true;
-    },
+	 }
+	if(this.y>eltMain.clientHeight){
+	  this._y = y-eltMain.clientHeight;
+      this._changed = true;
+    }
+	if(this.y<0){
+	this._y = y+eltMain.clientHeight;
+      this._changed = true;}
+	},
     update: function update() {
       this.elt.style.left = this.x + "px";
       this.elt.style.top = this.y + "px";

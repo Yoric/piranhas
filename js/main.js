@@ -7,6 +7,7 @@
 
   var PLAYER_SPEED = 0.3;
   var PIRANHA_SPEED = 0.2;
+  var collisionMargin = 3;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -53,20 +54,20 @@
       // FIXME: Make collision detection a little less harsh
       var horiz =
             (
-              (this.boundingRect.left <= sprite.boundingRect.left) && (this.boundingRect.right >= sprite.boundingRect.left)
+              (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin)
             ) ||
             (
-              (this.boundingRect.left <= sprite.boundingRect.right) && (this.boundingRect.right >= sprite.boundingRect.right)
+              (this.boundingRect.left <= (sprite.boundingRect.right - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.right - collisionMargin)
             );
       if (!horiz) {
         return false;
       }
       var vert =
             (
-              (this.boundingRect.top <= sprite.boundingRect.top) && (this.boundingRect.bottom >= sprite.boundingRect.top)
+              (this.boundingRect.top <= (sprite.boundingRect.top - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.top - collisionMargin)
             ) ||
             (
-              (this.boundingRect.top <= sprite.boundingRect.bottom) && (this.boundingRect.bottom >= sprite.boundingRect.bottom)
+              (this.boundingRect.top <= (sprite.boundingRect.bottom - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - collisionMargin)
             );
       return vert;
     },
@@ -142,6 +143,8 @@
       state.me.x = width / 2;
       state.me.y = height / 2;
 
+      // Clear score from previous game
+      Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
       requestAnimationFrame(step);
@@ -152,7 +155,10 @@
       }
       if (this.isPaused) {
         this.isPaused = false;
-        this.start();
+        // Allow to resume the game
+        this.chunkStart = Date.now();
+        this.timestamp = Date.now();
+        requestAnimationFrame(step);
       } else {
         this.isPaused = true;
       }

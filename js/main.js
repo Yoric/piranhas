@@ -28,12 +28,18 @@
       return this._y;
     },
     set x(x) {
-      this._x = x;
-      this._changed = true;
+      // Prevent the sombrero from leaving the screen un x
+      if (x >= 0 && x+32 <= eltMain.clientWidth) {
+        this._x = x;
+        this._changed = true;
+      }
     },
     set y(y) {
-      this._y = y;
-      this._changed = true;
+      // Prevent the sombrero from leaving the screen in y
+      if (y >= 0 && y+32 <= eltMain.clientHeight) {
+        this._y = y;
+        this._changed = true;
+      }
     },
     update: function update() {
       this.elt.style.left = this.x + "px";

@@ -5,6 +5,10 @@
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
 
+  // Number and Time to add piranhas in infinity mode
+  const TIME_WAIT = 1000;
+  const NUMBER_PIRANHAS = 1;
+  
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
 
@@ -100,30 +104,22 @@
   };
   
   // on fait en sorte de trouver une position à l'opposé du sombrero
-  var randomNotPositionSombrero = function randomNotPositionSombrero() 
-  {
-	var random = Math.random();
-	var result = new Array();
+  var randomNotPositionSombrero = function randomNotPositionSombrero() {
+	var result = {
+      x: 0,
+      y: 0
+    };
 	var width = eltMain.clientWidth;
 	var height = eltMain.clientHeight;
 	
-	if(state.me.x <= width/2)
-	{
-		result[0] = width-35;
+	if(state.me.x <= width/2) {
+	  result.x = width-35;
 	}
-	else
-	{	
-		result[0] = 35;
+	else {	
+      result.x = 35;
 	}
 	
-	if(state.me.y <= height/2)
-	{
-		result[1] = height-35;
-	}
-	else
-	{	
-		result[1] = 35;
-	}
+	result.y = Math.random() * height;
 	
     return result;
   };
@@ -242,38 +238,34 @@
   }
 
   var step = function step(timestamp) {
-    
-	// si nous sommes dans le mode infini
-	if(Game.infinityMode)
-	{
-		// Ajout de piranhas toutes les secondes
-		if(Date.now() - Game.timeAddPiranhas > 1000)
-		{
-			Game.timeAddPiranhas = Date.now();
-			var i;
-			var element;
-			var nbrePiranhas = state.piranhas.length;
-			const ENEMIES = 1;
+    // If we are in infinity mode
+	if(Game.infinityMode) {
+	  // Add piranhas
+	  if(Game.timestamp - Game.timeAddPiranhas > TIME_WAIT) {
+	    Game.timeAddPiranhas = Game.timestamp;
+		var i;
+		var element;
+		var nbrePiranhas = state.piranhas.length;
+		var enemies = NUMBER_PIRANHAS;
+		
+		for (i = nbrePiranhas; i < enemies+nbrePiranhas; ++i) {
+		  var id = "piranha_" + i;
 			
-			for (i = nbrePiranhas; i < ENEMIES+nbrePiranhas; ++i) 
-			{
-				var id = "piranha_" + i;
-				
-				element = document.createElement("div");
-				var id = "piranha_" + i;
-				element.id = id;
-				element.classList.add("piranha");
-				element.classList.add("sprite");
-				document.body.appendChild(element);
-				
-				var tabCoordoneesFish = randomNotPositionSombrero();
-				var x = tabCoordoneesFish[0];
-				var y = tabCoordoneesFish[1];
-				var fish = new Piranha(id, x, y);
-				fish.update();
-				state.piranhas.push(fish);
-			}
+		  element = document.createElement("div");
+		  var id = "piranha_" + i;
+		  element.id = id;
+		  element.classList.add("piranha");
+		  element.classList.add("sprite");
+		  document.body.appendChild(element);
+			
+		  var tabCoordoneesFish = randomNotPositionSombrero();
+		  var x = tabCoordoneesFish.x;
+		  var y = tabCoordoneesFish.y;
+		  var fish = new Piranha(id, x, y);
+		  fish.update();
+		  state.piranhas.push(fish);
 		}
+	  }
 	}
 	
 	// Handle pause
@@ -343,12 +335,11 @@
 
     // Victory if there is 0 or 1 fish
     if (remainingFish <= 1) {
-      // si nous ne sommes pas dans le mode infini
-		if(!Game.infinityMode)
-		{
-			Game.over(true);
-			return;
-		}
+      // If we are in infinity mode
+	  if(!Game.infinityMode) {
+		  Game.over(true);
+		  return;
+	  }
     }
 
     // Loop

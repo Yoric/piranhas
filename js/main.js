@@ -27,14 +27,14 @@
       return this._y;
     },
     set x(x) {
-      if(x>=0&&x<=eltMain.clientWidth)
+      if(x>=0&&x+32<=eltMain.clientWidth)
     	{
       this._x = x;
       this._changed = true;
     }
     },
     set y(y) {
-    	if(y>=0&&y<=eltMain.clientHeight)
+    	if(y>=0&&y+32<=eltMain.clientHeight)
     	{
       this._y = y;
       this._changed = true;

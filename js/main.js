@@ -27,12 +27,18 @@
       return this._y;
     },
     set x(x) {
+      if(x>=0&&x<=eltMain.clientWidth)
+    	{
       this._x = x;
       this._changed = true;
+    }
     },
     set y(y) {
+    	if(y>=0&&y<=eltMain.clientHeight)
+    	{
       this._y = y;
       this._changed = true;
+    	}
     },
     update: function update() {
       this.elt.style.left = this.x + "px";

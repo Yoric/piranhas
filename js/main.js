@@ -7,7 +7,6 @@
 
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
-  var collisionMargin = 3;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -27,20 +26,18 @@
     get y() {
       return this._y;
     },
-    set x(x) {
-      // Prevent the sombrero from leaving the screen un x
-      if (x >= 0 && x+32 <= eltMain.clientWidth) {
-        this._x = x;
-        this._changed = true;
-      }
+     set x(x) {
+  
+	 var width = eltMain.clientWidth;
+	 this._x = (x + width)%width;
+     this._changed = true;
     },
     set y(y) {
-      // Prevent the sombrero from leaving the screen in y
-      if (y >= 0 && y+32 <= eltMain.clientHeight) {
-        this._y = y;
-        this._changed = true;
-      }
-    },
+	  
+	  var height = eltMain.clientHeight;
+	 this._y= (y + height)%height;
+     this._changed = true;
+	},
     update: function update() {
       this.elt.style.left = this.x + "px";
       this.elt.style.top = this.y + "px";
@@ -54,20 +51,20 @@
       // FIXME: Make collision detection a little less harsh
       var horiz =
             (
-              (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin)
+              (this.boundingRect.left <= sprite.boundingRect.left) && (this.boundingRect.right >= sprite.boundingRect.left)
             ) ||
             (
-              (this.boundingRect.left <= (sprite.boundingRect.right - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.right - collisionMargin)
+              (this.boundingRect.left <= sprite.boundingRect.right) && (this.boundingRect.right >= sprite.boundingRect.right)
             );
       if (!horiz) {
         return false;
       }
       var vert =
             (
-              (this.boundingRect.top <= (sprite.boundingRect.top - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.top - collisionMargin)
+              (this.boundingRect.top <= sprite.boundingRect.top) && (this.boundingRect.bottom >= sprite.boundingRect.top)
             ) ||
             (
-              (this.boundingRect.top <= (sprite.boundingRect.bottom - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - collisionMargin)
+              (this.boundingRect.top <= sprite.boundingRect.bottom) && (this.boundingRect.bottom >= sprite.boundingRect.bottom)
             );
       return vert;
     },
@@ -143,8 +140,6 @@
       state.me.x = width / 2;
       state.me.y = height / 2;
 
-      // Clear score from previous game
-      Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
       requestAnimationFrame(step);
@@ -155,10 +150,7 @@
       }
       if (this.isPaused) {
         this.isPaused = false;
-        // Allow to resume the game
-        this.chunkStart = Date.now();
-        this.timestamp = Date.now();
-        requestAnimationFrame(step);
+        this.start();
       } else {
         this.isPaused = true;
       }
@@ -245,7 +237,25 @@
       if (!fish || fish.isDying) { // Don't update for fishes that have eaten each other
         return;
       }
-      var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
+	  var deltax;
+	  var deltay;
+	  if (Math.abs(state.me.x - fish.x) < Math.abs(state.me.x+eltMain.clientWidth - fish.x))
+	  {
+	  	 deltax = state.me.x - fish.x;
+	  } 
+	  else{
+	  	 deltax = state.me.x+eltMain.clientWidth - fish.x;
+	  }
+	  
+	  if (Math.abs(state.me.y - fish.y) < Math.abs(state.me.y+eltMain.clientHeight - fish.y))
+	  {
+	  	 deltay = state.me.y - fish.y;
+	  } 
+	  else{
+	  	 deltay = state.me.y+eltMain.clientHeight - fish.y;
+	  }
+	  var delta = normalizeDelta(deltax, deltay);
+
       if (delta) {
         fish.x += delta.dx * piranha_multiply;
         fish.y += delta.dy * piranha_multiply;

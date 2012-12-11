@@ -7,7 +7,7 @@
 
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
-  var collisionMargin = 300;
+  var collisionMargin = 3;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;

@@ -44,23 +44,24 @@
       if (!sprite) {
         return false;
       }
+      var sensiblity = 300;
       // FIXME: Make collision detection a little less harsh
       var horiz =
             (
-              (this.boundingRect.left <= sprite.boundingRect.left) && (this.boundingRect.right >= sprite.boundingRect.left)
+              (this.boundingRect.left <= (sprite.boundingRect.left - sensiblity)) && (this.boundingRect.right >= sprite.boundingRect.left - sensiblity))
             ) ||
             (
-              (this.boundingRect.left <= sprite.boundingRect.right) && (this.boundingRect.right >= sprite.boundingRect.right)
+              (this.boundingRect.left <= sprite.boundingRect.right - sensiblity)) && (this.boundingRect.right >= sprite.boundingRect.right - sensiblity))
             );
       if (!horiz) {
         return false;
       }
       var vert =
             (
-              (this.boundingRect.top <= sprite.boundingRect.top) && (this.boundingRect.bottom >= sprite.boundingRect.top)
+              (this.boundingRect.top <= sprite.boundingRect.top - sensiblity)) && (this.boundingRect.bottom >= sprite.boundingRect.top - sensiblity))
             ) ||
             (
-              (this.boundingRect.top <= sprite.boundingRect.bottom) && (this.boundingRect.bottom >= sprite.boundingRect.bottom)
+              (this.boundingRect.top <= sprite.boundingRect.bottom - sensiblity)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - sensiblity))
             );
       return vert;
     },

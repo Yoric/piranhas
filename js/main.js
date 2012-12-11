@@ -38,7 +38,7 @@
       if (y >= 0 && y+32 <= eltMain.clientHeight) {
         this._y = y;
         this._changed = true;
-    	}
+      }
     },
     update: function update() {
       this.elt.style.left = this.x + "px";

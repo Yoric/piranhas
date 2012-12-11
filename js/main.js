@@ -156,6 +156,14 @@
         this.isPaused = true;
       }
     },
+    onblur: function onblur() {
+      if (this.isOver || this.isPaused) {
+        return;
+      }
+      else {
+        this.isPaused = true;
+      }
+    },
     over: function over(isVictory) {
       eltResultPane.classList.remove("hidden");
       var text;
@@ -351,6 +359,6 @@
   window.addEventListener("keypress", onkeypress);
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);
-
+  window.onblur = function(){Game.onblur();};
   Game.start();
 })();

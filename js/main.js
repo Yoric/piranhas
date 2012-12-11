@@ -28,14 +28,14 @@
     },
     set x(x) {
         //This test is to fix the bug of screen exit of a sombrero in x
-        if (x>=0&&x+32<=eltMain.clientWidth) {
+        if (x >= 0 && x+32 <= eltMain.clientWidth) {
           this._x = x;
           this._changed = true;
         }
     },
     set y(y) {
     	//This test is to fix the bug of screen exit of a sombrero in y
-    	if (y>=0&&y+32<=eltMain.clientHeight) {
+    	if (y >= 0 && y+32 <= eltMain.clientHeight) {
           this._y = y;
           this._changed = true;
     	}

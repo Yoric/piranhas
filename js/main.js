@@ -103,7 +103,7 @@
     return result;
   };
   
-  // on fait en sorte de trouver une position à l'opposé du sombrero
+  // position of fish is oposite to the sombrero
   var randomNotPositionSombrero = function randomNotPositionSombrero() {
 	var result = {
       x: 0,
@@ -167,7 +167,7 @@
       this.timestamp = Date.now();
       this.timeAddPiranhas = Date.now();
 	  
-	  // Mode infini
+	  // infinity mode
 	  this.infinityMode = true;
 	  
       requestAnimationFrame(step);

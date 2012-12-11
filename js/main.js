@@ -7,6 +7,7 @@
 
   const PLAYER_SPEED = 0.3;
   const PIRANHA_SPEED = 0.2;
+  var collisionMargin = 300;
 
   var Sprite = function Sprite(id, x, y) {
     this._x = x || 0;
@@ -44,24 +45,23 @@
       if (!sprite) {
         return false;
       }
-      var sensiblity = 300;
       // FIXME: Make collision detection a little less harsh
       var horiz =
             (
-              (this.boundingRect.left <= (sprite.boundingRect.left - sensiblity)) && (this.boundingRect.right >= sprite.boundingRect.left - sensiblity))
+              (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin))
             ) ||
             (
-              (this.boundingRect.left <= sprite.boundingRect.right - sensiblity)) && (this.boundingRect.right >= sprite.boundingRect.right - sensiblity))
+              (this.boundingRect.left <= sprite.boundingRect.right - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.right - collisionMargin))
             );
       if (!horiz) {
         return false;
       }
       var vert =
             (
-              (this.boundingRect.top <= sprite.boundingRect.top - sensiblity)) && (this.boundingRect.bottom >= sprite.boundingRect.top - sensiblity))
+              (this.boundingRect.top <= sprite.boundingRect.top - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.top - collisionMargin))
             ) ||
             (
-              (this.boundingRect.top <= sprite.boundingRect.bottom - sensiblity)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - sensiblity))
+              (this.boundingRect.top <= sprite.boundingRect.bottom - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - collisionMargin))
             );
       return vert;
     },

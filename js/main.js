@@ -16,7 +16,6 @@
     if (!this.elt) {
       throw new Error("Could not find sprite element");
     }
-    this._changed = true;
     this.boundingRect = null;
     this.elt.style.position = "absolute";
   };
@@ -29,22 +28,19 @@
     },
     set x(x) {
       // Prevent the sombrero from leaving the screen along x
-      if (x >= 0 && x+32 <= eltMain.clientWidth) {
+      if (x >= 0 && x + 32 <= eltMain.clientWidth) {
         this._x = x;
-        this._changed = true;
       }
     },
     set y(y) {
       // Prevent the sombrero from leaving the screen along y
-      if (y >= 0 && y+32 <= eltMain.clientHeight) {
+      if (y >= 0 && y + 32 <= eltMain.clientHeight) {
         this._y = y;
-        this._changed = true;
       }
     },
     update: function update() {
       this.elt.style.left = this.x + "px";
       this.elt.style.top = this.y + "px";
-      this._changed = false;
       this.boundingRect = this.elt.getBoundingClientRect();
     },
     collision: function collusion(sprite) {

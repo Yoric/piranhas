@@ -115,10 +115,8 @@
       var piranhas = document.getElementsByClassName("piranha");
       var i;
       var element;
-      console.log("We have", piranhas.length, "piranhas to remove");
       while (piranhas.length) {
         element = piranhas[0];
-        console.log("Removing", element.id);
         element.parentElement.removeChild(element);
       }
 

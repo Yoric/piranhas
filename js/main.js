@@ -304,10 +304,7 @@
     if (remainingFish < state.piranhas.length / 2) {
       var piranhas = [];
       for (i = 0 ; i < state.piranhas.length; ++i) {
-        fish = state.piranhas[i];
-        if (fish) {
-          piranhas.push(fish);
-        }
+        piranhas.push(state.piranhas[i]);
       }
       state.piranhas = piranhas;
     }

@@ -9,10 +9,10 @@
   var PIRANHA_SPEED = 0.2;
   var collisionMargin = 3;
 
-  var Sprite = function Sprite(id, x, y) {
+  var Sprite = function Sprite(elt, x, y) {
     this._x = x || 0;
     this._y = y || 0;
-    this.elt = document.getElementById(id);
+    this.elt = elt;
     if (!this.elt) {
       throw new Error("Could not find sprite element");
     }
@@ -81,17 +81,17 @@
     }
   };
 
-  var Me = function Me(id, x, y) {
-    Sprite.call(this, id, x, y);
+  var Sombrero = function Sombrero(x, y) {
+    Sprite.call(this, document.getElementById("me"), x, y);
   };
-  Me.prototype = Object.create(Sprite.prototype);
-  Me.prototype.reset = function reset() {
+  Sombrero.prototype = Object.create(Sprite.prototype);
+  Sombrero.prototype.reset = function reset() {
     this.elt.classList.remove("dead");
     this.elt.classList.remove("dying");
   };
 
-  var Piranha = function Piranha(id, x, y) {
-    Sprite.call(this, id, x, y);
+  var Piranha = function Piranha(elt, x, y) {
+    Sprite.call(this, elt, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
 
@@ -128,14 +128,12 @@
       var height = eltMain.clientHeight;
       for (i = 0; i < ENEMIES; ++i) {
         element = document.createElement("div");
-        var id = "piranha_" + i;
-        element.id = id;
         element.classList.add("piranha");
         element.classList.add("sprite");
         document.body.appendChild(element);
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
-        var fish = new Piranha(id, x, y);
+        var fish = new Piranha(element, x, y);
         fish.update();
         piranhas.push(fish);
       }
@@ -202,7 +200,7 @@
       x: 0,
       y: 0
     },
-    me: new Me("me"),
+    me: new Sombrero(),
     piranhas: null
   };
 

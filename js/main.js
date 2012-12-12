@@ -81,7 +81,11 @@
     this.elt.classList.remove("dying");
   };
 
-  var Piranha = function Piranha(elt, x, y) {
+  var Piranha = function Piranha(x, y) {
+    var elt = document.createElement("div");
+    elt.classList.add("piranha");
+    elt.classList.add("sprite");
+    document.body.appendChild(elt);
     Sprite.call(this, elt, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
@@ -116,13 +120,9 @@
       var width = eltMain.clientWidth;
       var height = eltMain.clientHeight;
       for (i = 0; i < ENEMIES; ++i) {
-        element = document.createElement("div");
-        element.classList.add("piranha");
-        element.classList.add("sprite");
-        document.body.appendChild(element);
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
-        var fish = new Piranha(element, x, y);
+        var fish = new Piranha(x, y);
         fish.update();
         piranhas.push(fish);
       }

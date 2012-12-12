@@ -5,9 +5,22 @@
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
 
-  var PLAYER_SPEED = 0.3;
-  var PIRANHA_SPEED = 0.2;
-  var collisionMargin = 3;
+  // Gameplay options.
+  var Options = {
+    // The speed of the sombrero, in pixels per milliseconds
+    sombreroSpeedFactor: 0.3,
+
+    // The speed of piranhas, in pixels per milliseconds
+    piranhaSpeedFactor: 0.2,
+
+    // The leniency of collision, in pixels (decrease this value
+    // to make collisions more likely).
+    collisionMargin: 3,
+
+    // The number of piranhas to spawn when the game starts
+    initialNumberOfPiranhas: 18
+  };
+
 
   var Cache = {
     // Optimization: reusing DOM nodes
@@ -67,6 +80,7 @@
       if (!sprite) {
         return false;
       }
+      var collisionMargin = Options.collisionMargin;
       var horiz =
             (
               (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin)
@@ -134,11 +148,10 @@
         Cache.recycle(piranhas[0]);
       }
 
-      var ENEMIES = 18;
       piranhas = [];
       var width = eltMain.clientWidth;
       var height = eltMain.clientHeight;
-      for (i = 0; i < ENEMIES; ++i) {
+      for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
         var fish = new Piranha(x, y);
@@ -233,8 +246,8 @@
     var duration = timestamp - Game.timestamp;
     Game.timestamp = timestamp;
 
-    var player_multiply = duration * PLAYER_SPEED;
-    var piranha_multiply = duration * PIRANHA_SPEED;
+    var player_multiply = duration * Options.sombreroSpeedFactor;
+    var piranha_multiply = duration * Options.piranhaSpeedFactor;
 
     var elapsed = timestamp - Game.chunkStart;
     if (Game.isPaused) {
@@ -305,6 +318,7 @@
       var piranhas = [];
       for (i = 0 ; i < state.piranhas.length; ++i) {
         piranhas.push(state.piranhas[i]);
+        // If |state.piranhas[i] == null|, this doesn't do anything
       }
       state.piranhas = piranhas;
     }

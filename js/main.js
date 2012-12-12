@@ -51,7 +51,6 @@
       if (!sprite) {
         return false;
       }
-      // FIXME: Make collision detection a little less harsh
       var horiz =
             (
               (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin)

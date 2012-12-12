@@ -292,6 +292,18 @@
       return;
     }
 
+    // Clean up `state.piranhas` every once in a while
+    if (remainingFish < state.piranhas.length / 2) {
+      var piranhas = [];
+      for (i = 0 ; i < state.piranhas.length; ++i) {
+        fish = state.piranhas[i];
+        if (fish) {
+          piranhas.push(fish);
+        }
+      }
+      state.piranhas = piranhas;
+    }
+
     // Loop
 
     requestAnimationFrame(step);

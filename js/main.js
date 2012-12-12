@@ -28,15 +28,11 @@
     },
     set x(x) {
       // Prevent the sombrero from leaving the screen along x
-      if (x >= 0 && x + 32 <= eltMain.clientWidth) {
-        this._x = x;
-      }
+      this._x = bounded(x, 0, eltMain.clientWidth - 32);
     },
     set y(y) {
       // Prevent the sombrero from leaving the screen along y
-      if (y >= 0 && y + 32 <= eltMain.clientHeight) {
-        this._y = y;
-      }
+      this._y = bounded(y, 0, eltMain.clientHeight - 32);
     },
     update: function update() {
       this.elt.style.left = this.x + "px";
@@ -334,6 +330,23 @@
       return;
     }
     console.error("Could not determine key");
+  };
+
+  /**
+   * Return the value in an interval closest to `x`.
+   *
+   * If `x` is between `min` and `max`, return `x`.
+   * Otherwise, if `x` is below `min`, return `min`.
+   * Otherwise, `x` is larger than `max`, return `max`.
+   */
+  var bounded = function bounded(x, min, max) {
+    if (x <= min) {
+      return min;
+    }
+    if (x >= max) {
+      return max;
+    }
+    return x;
   };
 
   var EPSILON = 0.01;

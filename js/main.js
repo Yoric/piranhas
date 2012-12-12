@@ -28,14 +28,14 @@
       return this._y;
     },
     set x(x) {
-      // Prevent the sombrero from leaving the screen un x
+      // Prevent the sombrero from leaving the screen along x
       if (x >= 0 && x+32 <= eltMain.clientWidth) {
         this._x = x;
         this._changed = true;
       }
     },
     set y(y) {
-      // Prevent the sombrero from leaving the screen in y
+      // Prevent the sombrero from leaving the screen along y
       if (y >= 0 && y+32 <= eltMain.clientHeight) {
         this._y = y;
         this._changed = true;

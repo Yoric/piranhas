@@ -1,11 +1,11 @@
 (function () {
-  "use strict";
+  "use strict"; //delete this row in order to make this app working on chrome.
   var eltMain = document.getElementById("main");
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
   var restartButton = document.getElementById("restart");
-  
+  var loose = document.getElementById('loose');
 
 
   const PLAYER_SPEED = 0.3;
@@ -160,17 +160,19 @@
       if (isVictory) {
         text = "Victoria, my sombrero!";
       } else {
-        text = "Game over, my sombrero! :(";
+        text = "Game over, my sombrero!";
       }
-      eventModal(text);
+      eventModal(text, isVictory);
       var restart = function restart() {
+		loose.display = "none";
         restartButton.removeEventListener("click", restart);
+        document.removeEventListener("click", restart);
         eltResultPane.classList.add("hidden");
         eventHideModal();
         return Game.start();
       };
       restartButton.addEventListener('click',restart);
-
+		document.addEventListener('click',restart);
     },
     isPaused: false,
     isOver: false,
@@ -205,10 +207,11 @@
 
 
 
-  var eventModal = function (text){
+  var eventModal = function (text, flag){
     var dialog = document.getElementById("dialog");
     var message = document.getElementById('messageEnd');
-    var scoreFinal = document.getElementById('scoreFinal')
+    var scoreFinal = document.getElementById('scoreFinal');	
+	
     message.innerHTML= text;
 
     var maskWidth = window.innerWidth;
@@ -220,13 +223,19 @@
 
     mask.style.display = "block";
 
-    dialog.style.width = maskWidth/3+"px";
-    dialog.style.height = maskHeight/3+"px";
-    dialog.style.left = Math.round(maskWidth/3)+"px";
-    dialog.style.top = Math.round(maskHeight/3)+"px";
+    dialog.style.width ="400px";
+    dialog.style.height = "200px";
+    dialog.style.left = Math.round(maskWidth/2)-200+"px";
+    dialog.style.top = Math.round(maskHeight/2)-100+"px";
     dialog.style.display = "block";
     dialog.style.background = "white";
     dialog.style.color = "black !important";
+	
+	if(flag === false){
+		loose.style.display = "block";
+	}	
+	
+	
     scoreFinal.textContent = eltScore.textContent;
 
  }

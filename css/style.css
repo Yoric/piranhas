@@ -61,7 +61,7 @@ body {
 /* Z-index of #mask must lower than #boxes .window */
 #mask {
   position:absolute;
-  z-index:9000;
+  z-index:4;
   background-color:red;
   display:none;
   opacity:0.5;
@@ -72,7 +72,7 @@ body {
 #dialog{
   position:absolute;
   display:none;
-  z-index:9999;
+  z-index:5;
   padding:20px;
   text-align: center;
 }
@@ -82,4 +82,29 @@ body {
  
 #scoreFinal {
   color : red;
+}
+
+#loose{
+	position: absolute;
+	z-index:6;
+	background-image: url("../img/c899952a-446f-11e2-836b-175cfefaf868.png");
+	width: 200px;
+	height: 240px; 
+	top : 0px;
+	right: 0px;
+	display : none;
+}
+
+#dialogContent{
+	position: relative;
+	z-index:7;
+}
+
+#restart{
+	background-color: #e38d28;
+	border-color: #ffae32;
+}
+
+#restart:hover{
+	color: #fd000b;
 }

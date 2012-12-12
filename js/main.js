@@ -248,7 +248,7 @@
     state.me.update();
 
     state.piranhas.forEach(function (fish) {
-      if (!fish || fish.isDying) { // Don't update for fishes that have eaten each other
+      if (!fish) { // Don't update for fishes that have eaten each other
         return;
       }
       var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);

@@ -9,6 +9,30 @@
   var PIRANHA_SPEED = 0.2;
   var collisionMargin = 3;
 
+  var Cache = {
+    // Optimization: reusing DOM nodes
+    _divElements: [],
+    getDivElement: function() {
+      var elt;
+      if (this._divElements.length != 0) {
+        elt = this._divElements.pop();
+        elt.classList.remove("cache");
+      } else {
+        elt = document.createElement("div");
+        document.body.appendChild(elt);
+      }
+      return elt;
+    },
+    recycle: function(elt) {
+      elt.removeEventListener("transitionend", onrecycle);
+      elt.className = "cache";
+      this._divElements.push(elt);
+    }
+  };
+  var onrecycle = function onrecycle(e) {
+    Cache.recycle(e.target);
+  };
+
   var Sprite = function Sprite(elt, x, y) {
     this._x = x || 0;
     this._y = y || 0;
@@ -65,10 +89,6 @@
     die: function die(timestamp) {
       var self = this;
       self.elt.classList.add("dying");
-      self.elt.addEventListener("transition", function() {
-        self.elt.classList.remove("dead");
-        self.elt.classList.add("dead");
-      });
     }
   };
 
@@ -82,10 +102,10 @@
   };
 
   var Piranha = function Piranha(x, y) {
-    var elt = document.createElement("div");
+    var elt = Cache.getDivElement();
     elt.classList.add("piranha");
     elt.classList.add("sprite");
-    document.body.appendChild(elt);
+    elt.addEventListener("transitionend", onrecycle);
     Sprite.call(this, elt, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
@@ -110,9 +130,8 @@
       var piranhas = document.getElementsByClassName("piranha");
       var i;
       var element;
-      while (piranhas.length) {
-        element = piranhas[0];
-        element.parentElement.removeChild(element);
+      while(piranhas.length) {
+        Cache.recycle(piranhas[0]);
       }
 
       var ENEMIES = 18;

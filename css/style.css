@@ -8,7 +8,7 @@ body {
     background-color: black
 }
 #main {
-    background-color: black;
+    background-image: url("../img/background.png");
 }
 .sprite {
 }

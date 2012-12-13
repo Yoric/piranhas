@@ -18,7 +18,18 @@
     collisionMargin: 3,
 
     // The number of piranhas to spawn when the game starts
-    initialNumberOfPiranhas: 18
+    initialNumberOfPiranhas: 18,
+
+    debug: true
+  };
+
+  // Statistics, useful for debugging
+  var Statistics = {
+    frame: 0,
+    userTime: 0,
+    averageUserTime: null,
+    averageFPS: null,
+    latestUpdate: 0
   };
 
 
@@ -163,6 +174,8 @@
       state.me.y = height / 2;
 
       // Clear score from previous game
+      Statistics.frame = 0;
+      Statistics.userTime = 0;
       Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
@@ -244,6 +257,7 @@
   var step = function step(timestamp) {
     // Handle pause
     var duration = timestamp - Game.timestamp;
+    var previousStamp = Game.timeStamp;
     Game.timestamp = timestamp;
 
     var player_multiply = duration * Options.sombreroSpeedFactor;
@@ -321,6 +335,20 @@
         // If |state.piranhas[i] == null|, this doesn't do anything
       }
       state.piranhas = piranhas;
+    }
+
+    // Update statistics
+    if (Options.debug) {
+      var now = Date.now();
+      Statistics.frame++;
+      Statistics.userTime += now - timestamp;
+      var totalTime = Game.totalTime + elapsed;
+      if (totalTime > Statistics.latestUpdate + 1000) {
+        Statistics.latestUpdate = totalTime;
+        Statistics.averageUserTime = Statistics.userTime / Statistics.frame;
+        Statistics.averageFPS = 1000 * Statistics.frame / totalTime;
+        console.log("Statistics:", "fps", Statistics.averageFPS, "user time:", Statistics.averageUserTime);
+      }
     }
 
     // Loop
@@ -414,4 +442,9 @@
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);
   Game.start();
+
+  window.Piranhas = {
+    options: Options,
+    statistics: Statistics
+  };
 })();

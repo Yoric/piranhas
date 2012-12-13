@@ -83,8 +83,23 @@
       this._y = bounded(y, 0, eltMain.clientHeight - 32);
     },
     update: function update() {
-      this.elt.style.left = this.x + "px";
-      this.elt.style.top = this.y + "px";
+      //this.elt.style.left = this.x + "px";
+      //this.elt.style.top = this.y + "px";
+      var value = "translate(" + this.x + "px, " + this.y +"px)";
+      if ("transform" in window.CSSStyleDeclaration.prototype) {
+        this.elt.style.transform = value;
+      } else if ("mozTransform" in window.CSSStyleDeclaration.prototype) {
+        this.elt.style.mozTransform = value;
+      } else if ("webkitTransform" in window.CSSStyleDeclaration.prototype) {
+        this.elt.style.webkitTransform = value;
+      } else if ("msTransform" in window.CSSStyleDeclaration.prototype) {
+        this.elt.style.msTransform = value;
+      } else if ("oTransform" in window.CSSStyleDeclaration.prototype) {
+        this.elt.style.oTransform = value;
+      } else {
+        this.elt.style.left = this.x + "px";
+        this.elt.style.top = this.y + "px";
+      }
       this.boundingRect = this.elt.getBoundingClientRect();
     },
     collision: function collusion(sprite) {

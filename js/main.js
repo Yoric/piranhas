@@ -288,7 +288,9 @@
 
     // Handle score
 
-    eltScore.textContent = "Score: " + (Game.totalTime + elapsed);
+    if (!Options.debug) {
+      eltScore.textContent = "Score: " + (Game.totalTime + elapsed);
+    }
 
     // Detect collisions
 
@@ -348,6 +350,8 @@
         Statistics.averageUserTime = Statistics.userTime / Statistics.frame;
         Statistics.averageFPS = 1000 * Statistics.frame / totalTime;
         console.log("Statistics:", "fps", Statistics.averageFPS, "user time:", Statistics.averageUserTime);
+
+        eltScore.textContent = "fps: " + Math.round(Statistics.averageFPS) + " user time: " + Math.round(Statistics.averageUserTime) + ", score: " + totalTime;
       }
     }
 

@@ -30,7 +30,8 @@
     userTime: 0,
     averageUserTime: null,
     averageFPS: null,
-    latestUpdate: 0
+    latestUpdate: 0,
+    text: ""
   };
 
   // Compatibility
@@ -204,6 +205,10 @@
       // Clear score from previous game
       Statistics.frame = 0;
       Statistics.userTime = 0;
+      Statistics.latestUpdate = 0;
+      if (Options.debug) {
+        Statistics.text = "<measuring> ";
+      }
       Game.totalTime = 0;
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
@@ -316,9 +321,7 @@
 
     // Handle score
 
-    if (!Options.debug) {
-      eltScore.textContent = "Score: " + (Game.totalTime + elapsed);
-    }
+    eltScore.textContent = Statistics.text + "Score: " + (Game.totalTime + elapsed);
 
     // Detect collisions
 
@@ -371,16 +374,15 @@
     if (Options.debug) {
       var now = Date.now();
       Statistics.frame++;
-      Statistics.userTime += now - timestamp;
       var totalTime = Game.totalTime + elapsed;
-      if (totalTime > Statistics.latestUpdate + 1000) {
+      if (totalTime > Statistics.latestUpdate + 300) {
         Statistics.latestUpdate = totalTime;
         Statistics.averageUserTime = Statistics.userTime / Statistics.frame;
         Statistics.averageFPS = 1000 * Statistics.frame / totalTime;
         console.log("Statistics:", "fps", Statistics.averageFPS, "user time:", Statistics.averageUserTime);
-
-        eltScore.textContent = "fps: " + Math.round(Statistics.averageFPS) + " user time: " + Math.round(Statistics.averageUserTime) + ", score: " + totalTime;
+        Statistics.text = "fps: " + Math.round(Statistics.averageFPS) + " user time: " + Math.round(Statistics.averageUserTime) + " ";
       }
+      Statistics.userTime += now - timestamp;
     }
 
     // Loop

@@ -33,6 +33,18 @@
     latestUpdate: 0
   };
 
+  // Compatibility
+  if (!("KeyEvent" in window)) {
+    // Chrome does not define key event constants
+    window.KeyEvent = {
+      DOM_VK_ESCAPE: 27,
+      DOM_VK_SPACE: 32,
+      DOM_VK_LEFT: 37,
+      DOM_VK_UP: 38,
+      DOM_VK_RIGHT: 39,
+      DOM_VK_DOWN: 40
+    };
+  }
 
   var Cache = {
     // Optimization: reusing DOM nodes
@@ -381,28 +393,27 @@
   var onkeypress = function onkeypress(event) {
     var code;
     if ("key" in event) {
-      // FIXME: TODO
-      return;
+      console.error("FIXME: Handle event.key");
     }
     if ("keyCode" in event || "which" in event) {
       code = event.keyCode || event.which;
-      if (code == KeyEvent.DOM_VK_UP) {
+      if (code == window.KeyEvent.DOM_VK_UP) {
         if (state.delta.y >= 0) {
           state.delta.y = -1;
         }
-      } else if (code == KeyEvent.DOM_VK_DOWN) {
+      } else if (code == window.KeyEvent.DOM_VK_DOWN) {
         if (state.delta.y <= 0) {
           state.delta.y = 1;
         }
-      } else if (code == KeyEvent.DOM_VK_LEFT) {
+      } else if (code == window.KeyEvent.DOM_VK_LEFT) {
         if (state.delta.x >= 0) {
           state.delta.x = -1;
         }
-      } else if (code == KeyEvent.DOM_VK_RIGHT) {
+      } else if (code == window.KeyEvent.DOM_VK_RIGHT) {
         if (state.delta.x <= 0) {
           state.delta.x = 1;
         }
-      } else if (code == KeyEvent.DOM_VM_ESCAPE || code == KeyEvent.DOM_VK_SPACE) {
+      } else if (code == window.KeyEvent.DOM_VM_ESCAPE || code == window.KeyEvent.DOM_VK_SPACE) {
         Game.pause();
       }
       return;
@@ -457,7 +468,7 @@
     }
   };
 
-  window.addEventListener("keypress", onkeypress);
+  window.addEventListener("keydown", onkeypress);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);

@@ -20,7 +20,8 @@
     // The number of piranhas to spawn when the game starts
     initialNumberOfPiranhas: 18,
 
-    debug: true
+    // Set to |true| to compute and display debug information
+    debug: false
   };
 
   // Statistics, useful for debugging

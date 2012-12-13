@@ -23,6 +23,10 @@ body {
     width: 0px !important;
     height: 0px !important;
     transition: all 1s;
+    -moz-transition: all 1s;
+    -ms-transition: all 1s;
+    -o-transition: all 1s;
+    -webkit-transition: all 1s;
 }
 .dead {
 }

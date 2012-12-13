@@ -47,6 +47,7 @@
     };
   }
 
+
   var Cache = {
     // Optimization: reusing DOM nodes
     _divElements: [],
@@ -65,6 +66,25 @@
       elt.removeEventListener("transitionend", onrecycle);
       elt.className = "cache";
       this._divElements.push(elt);
+    },
+    _transformPropertyName: null,
+    get transformPropertyName() {
+      if (this._transformPropertyName) {
+        return this._transformPropertyName;
+      }
+      var names = [
+        "transform",
+        "WebkitTransform",
+        "msTransform",
+        "MozTransform",
+        "OTransform"
+      ];
+      for (var i = 0; i < names.length; ++i) {
+        if (typeof eltMain.style[names[i]] != "undefined") {
+          return this._transformPropertyName = names[i];
+        }
+      }
+      return null;
     }
   };
   var onrecycle = function onrecycle(e) {
@@ -97,19 +117,10 @@
       this._y = bounded(y, 0, eltMain.clientHeight - 32);
     },
     update: function update() {
-      //this.elt.style.left = this.x + "px";
-      //this.elt.style.top = this.y + "px";
-      var value = "translate(" + this.x + "px, " + this.y +"px)";
-      if ("transform" in window.CSSStyleDeclaration.prototype) {
-        this.elt.style.transform = value;
-      } else if ("mozTransform" in window.CSSStyleDeclaration.prototype) {
-        this.elt.style.mozTransform = value;
-      } else if ("webkitTransform" in window.CSSStyleDeclaration.prototype) {
-        this.elt.style.webkitTransform = value;
-      } else if ("msTransform" in window.CSSStyleDeclaration.prototype) {
-        this.elt.style.msTransform = value;
-      } else if ("oTransform" in window.CSSStyleDeclaration.prototype) {
-        this.elt.style.oTransform = value;
+      var transform = Cache.transformPropertyName;
+      if (transform) {
+        var value = "translate(" + this.x + "px, " + this.y +"px)";
+        this.elt.style[transform] = value;
       } else {
         this.elt.style.left = this.x + "px";
         this.elt.style.top = this.y + "px";

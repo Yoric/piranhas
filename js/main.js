@@ -335,7 +335,7 @@
 
     var length = state.piranhas.length;
 
-    if (Options.debugNoCollisions) {
+    if (!Options.debugNoCollisions) {
       // Collisions between a fish and the sombrero
       for (var i = 0; i < length; ++i) {
         var fish = state.piranhas[i];

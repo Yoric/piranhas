@@ -94,6 +94,8 @@
     Cache.recycle(e.target);
   };
 
+  var collisionDistance = 29;
+
   var Sprite = function Sprite(elt, x, y) {
     this._x = x || 0;
     this._y = y || 0;
@@ -102,16 +104,6 @@
       throw new Error("Could not find sprite element");
     }
     var rect = elt.getBoundingClientRect();
-    this._diameter = 32;
-    this._rayon = this._diameter / 2;
-    this._collDiameter = this._diameter - Options.collisionMargin;
-    this.boundingRect = {
-      left: 0,
-      right:0,
-      top: 0,
-      bottom: 0
-    };
-    console.log("diameter", this._collDiameter);
     this.elt.style.position = "absolute";
   };
   Sprite.prototype = {
@@ -143,19 +135,7 @@
       this._centerX = rect.left + this._rayon;
       this._centerY = rect.top + this._rayon;
     },
-    collision: function collusion(sprite) {
-      if (Options.debugNoCollisions) {
-        return false;
-      }
-      if (!sprite) {
-        return false;
-      }
-      var dx = this._centerX - sprite._centerX;
-      var dy = this._centerY - sprite._centerY;
-      return ((Math.abs(dx) <= this._collDiameter)
-              &&(Math.abs(dy) <= this._collDiameter));
-    },
-    die: function die(timestamp) {
+    die: function die() {
       var self = this;
       self.elt.classList.add("dying");
     }
@@ -342,29 +322,77 @@
 
     var remainingFish = 0;
     var collisionDetections = 0;
-    for (var i = 0; i < state.piranhas.length; ++i) {
+
+    state.piranhas.sort(function(a, b) {
+      if (!a) {
+        return true;
+      }
+      if (!b) {
+        return false;
+      }
+      return a.x >= b.x;
+    });
+
+    var length = state.piranhas.length;
+
+    // Collisions between a fish and the sombrero
+    for (var i = 0; i < length; ++i) {
       var fish = state.piranhas[i];
       if (!fish) {
         continue;
       }
       collisionDetections++;
-      if (fish.collision(state.me)) {
+      var dx = fish.x - state.me.x;
+      // If the fish is too far on the right, all further
+      // fishes are too far on the right
+      if (dx > collisionDistance) {
+        break;
+      }
+      if (Math.abs(dx) > collisionDistance) {
+        continue;
+      }
+      var dy = fish.y - state.me.y;
+      if (Math.abs(dy) <= collisionDistance) {
+        // We have a collision
+        console.log("Sombrero collision", Math.round(dx), Math.round(dy), collisionDistance);
         state.me.die();
         Game.over(false);
         return;
       }
-      for (var j = i + 1; j < state.piranhas.length; ++j) {
+    }
+
+    // Collisions between two fishes
+    for (i = 0; i < length; ++i) {
+      fish = state.piranhas[i];
+      if (!fish) {
+        continue;
+      }
+
+      for (var j = i + 1; j < length; ++j) {
         var fish2 = state.piranhas[j];
         if (!fish2) {
           continue;
         }
+
         collisionDetections++;
-        if (fish.collision(fish2)) {
-          fish.die(timestamp);
-          fish2.die(timestamp);
+        dx = fish2.x - fish.x; // Necessarily >= 0
+        if (dx < 0) {
+          throw new Error(dx);
+        }
+        if (dx >= collisionDistance) {
+          // If fish2 is too far on the right, all further
+          // fishes are too far on the right
+          break;
+        }
+
+        dy = fish2.y - fish.y;
+        if (Math.abs(dy) <= collisionDistance) {
+          // We have a collision
+          console.log("Fish collision", Math.round(dx), Math.round(dy), collisionDistance);
+          fish.die();
+          fish2.die();
           state.piranhas[i] = null;
           state.piranhas[j] = null;
-          // Will be removed at the next stage
         }
       }
       if (fish) {
@@ -393,7 +421,7 @@
       var now = Date.now();
       Statistics.framesSinceLastMeasure++;
       var deltaT = now - Statistics.dateOfLastMeasure;
-      if (deltaT > 1000) {
+      if (deltaT > 300) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
         Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetect " + collisionDetections + ", ";

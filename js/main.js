@@ -131,7 +131,6 @@
         this.elt.style.left = Math.round(this.x) + "px";
         this.elt.style.top = Math.round(this.y) + "px";
       }
-      var rect = this.elt.getBoundingClientRect();
     },
     die: function die() {
       var self = this;

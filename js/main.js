@@ -119,11 +119,12 @@
     update: function update() {
       var transform = Cache.transformPropertyName;
       if (transform) {
-        var value = "translate(" + this.x + "px, " + this.y +"px)";
+        var value = "translate(" + Math.round(this.x) + "px, "
+              + Math.round(this.y) +"px)";
         this.elt.style[transform] = value;
       } else {
-        this.elt.style.left = this.x + "px";
-        this.elt.style.top = this.y + "px";
+        this.elt.style.left = Math.round(this.x) + "px";
+        this.elt.style.top = Math.round(this.y) + "px";
       }
       this.boundingRect = this.elt.getBoundingClientRect();
     },
@@ -214,9 +215,9 @@
       state.me.y = height / 2;
 
       // Clear score from previous game
-      Statistics.frame = 0;
+      Statistics.framesSinceLastMeasure = 0;
       Statistics.userTime = 0;
-      Statistics.latestUpdate = 0;
+      Statistics.dateOfLastMeasure = Date.now();
       if (Options.debug) {
         Statistics.text = "<measuring> ";
       }
@@ -384,14 +385,15 @@
     // Update statistics
     if (Options.debug) {
       var now = Date.now();
-      Statistics.frame++;
-      var totalTime = Game.totalTime + elapsed;
-      if (totalTime > Statistics.latestUpdate + 300) {
-        Statistics.latestUpdate = totalTime;
-        Statistics.averageUserTime = Statistics.userTime / Statistics.frame;
-        Statistics.averageFPS = 1000 * Statistics.frame / totalTime;
-        console.log("Statistics:", "fps", Statistics.averageFPS, "user time:", Statistics.averageUserTime);
-        Statistics.text = "fps: " + Math.round(Statistics.averageFPS) + " user time: " + Math.round(Statistics.averageUserTime) + " ";
+      Statistics.framesSinceLastMeasure++;
+      var deltaT = now - Statistics.dateOfLastMeasure;
+      if (deltaT > 1000) {
+        var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
+        var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
+        Statistics.text = "fps: " + Math.round(fps) + " user time: " + Math.round(userTime) + " ";
+
+        Statistics.framesSinceLastMeasure = 0;
+        Statistics.dateOfLastMeasure = now;
       }
       Statistics.userTime += now - timestamp;
     }

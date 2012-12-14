@@ -102,15 +102,16 @@
       throw new Error("Could not find sprite element");
     }
     var rect = elt.getBoundingClientRect();
-    this._rayon = 16;
-    this._collRayon = this._rayon - Options.collisionMargin / 2;
+    this._diameter = 32;
+    this._rayon = this._diameter / 2;
+    this._collDiameter = this._diameter - Options.collisionMargin;
     this.boundingRect = {
       left: 0,
       right:0,
       top: 0,
       bottom: 0
     };
-    console.log("width", "height", this._width, this._height);
+    console.log("diameter", this._collDiameter);
     this.elt.style.position = "absolute";
   };
   Sprite.prototype = {
@@ -151,8 +152,8 @@
       }
       var dx = this._centerX - sprite._centerX;
       var dy = this._centerY - sprite._centerY;
-      return ((Math.abs(dx) <= this._collRayon)
-              &&(Math.abs(dy) <= this._collRayon));
+      return ((Math.abs(dx) <= this._collDiameter)
+              &&(Math.abs(dy) <= this._collDiameter));
     },
     die: function die(timestamp) {
       var self = this;

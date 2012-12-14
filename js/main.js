@@ -424,7 +424,7 @@
       if (deltaT > 300) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetect " + collisionDetections + ", ";
+        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetections " + collisionDetections + ", ";
 
         Statistics.framesSinceLastMeasure = 0;
         Statistics.dateOfLastMeasure = now;

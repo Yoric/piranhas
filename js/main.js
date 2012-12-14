@@ -323,19 +323,20 @@
     var remainingFish = 0;
     var collisionDetections = 0;
 
-    state.piranhas.sort(function(a, b) {
-      if (!a) {
-        return true;
-      }
-      if (!b) {
-        return false;
-      }
-      return a.x >= b.x;
-    });
-
-    var length = state.piranhas.length;
-
     if (!Options.debugNoCollisions) {
+      // For benchmarking purposes, we can skip collision detection
+      state.piranhas.sort(function(a, b) {
+        if (!a) {
+          return true;
+        }
+        if (!b) {
+          return false;
+        }
+        return a.x >= b.x;
+      });
+
+      var length = state.piranhas.length;
+
       // Collisions between a fish and the sombrero
       for (var i = 0; i < length; ++i) {
         var fish = state.piranhas[i];

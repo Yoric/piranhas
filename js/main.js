@@ -390,12 +390,14 @@
       if (deltaT > 1000) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        Statistics.text = "fps: " + Math.round(fps) + " user time: " + Math.round(userTime) + " ";
+        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, ";
 
         Statistics.framesSinceLastMeasure = 0;
         Statistics.dateOfLastMeasure = now;
+        Statistics.userTime = 0;
+      } else {
+        Statistics.userTime += now - timestamp;
       }
-      Statistics.userTime += now - timestamp;
     }
 
     // Loop

@@ -5,6 +5,13 @@
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
 
+  var diagonal = (function() {
+    var rect = eltMain.getBoundingClientRect();
+    var dx = rect.width;
+    var dy = rect.height;
+    return Math.sqrt(dx * dx, dy * dy);
+  })();
+
   // Gameplay options.
   var Options = {
     // The speed of the sombrero, in pixels per milliseconds
@@ -14,7 +21,7 @@
     piranhaSpeedFactor: 0.2,
 
     // General speed factor
-    speedFactor: eltMain.getBoundingClientRect().width / 1000,
+    speedFactor: diagonal / 1000,
 
     // The leniency of collision, in pixels (decrease this value
     // to make collisions more likely).

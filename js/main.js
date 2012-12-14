@@ -335,68 +335,67 @@
 
     var length = state.piranhas.length;
 
-    // Collisions between a fish and the sombrero
-    for (var i = 0; i < length; ++i) {
-      var fish = state.piranhas[i];
-      if (!fish) {
-        continue;
-      }
-      collisionDetections++;
-      var dx = fish.x - state.me.x;
-      // If the fish is too far on the right, all further
-      // fishes are too far on the right
-      if (dx > collisionDistance) {
-        break;
-      }
-      if (Math.abs(dx) > collisionDistance) {
-        continue;
-      }
-      var dy = fish.y - state.me.y;
-      if (Math.abs(dy) <= collisionDistance) {
-        // We have a collision
-        console.log("Sombrero collision", Math.round(dx), Math.round(dy), collisionDistance);
-        state.me.die();
-        Game.over(false);
-        return;
-      }
-    }
-
-    // Collisions between two fishes
-    for (i = 0; i < length; ++i) {
-      fish = state.piranhas[i];
-      if (!fish) {
-        continue;
+    if (Options.debugNoCollisions) {
+      // Collisions between a fish and the sombrero
+      for (var i = 0; i < length; ++i) {
+        var fish = state.piranhas[i];
+        if (!fish) {
+          continue;
+        }
+        collisionDetections++;
+        var dx = fish.x - state.me.x;
+        // If the fish is too far on the right, all further
+        // fishes are too far on the right
+        if (dx > collisionDistance) {
+          break;
+        }
+        if (Math.abs(dx) > collisionDistance) {
+          continue;
+        }
+        var dy = fish.y - state.me.y;
+        if (Math.abs(dy) <= collisionDistance) {
+          // We have a collision
+          console.log("Sombrero collision", Math.round(dx), Math.round(dy), collisionDistance);
+          state.me.die();
+          Game.over(false);
+          return;
+        }
       }
 
-      for (var j = i + 1; j < length; ++j) {
-        var fish2 = state.piranhas[j];
-        if (!fish2) {
+      // Collisions between two fishes
+      for (i = 0; i < length; ++i) {
+        fish = state.piranhas[i];
+        if (!fish) {
           continue;
         }
 
-        collisionDetections++;
-        dx = fish2.x - fish.x; // Necessarily >= 0
-        if (dx < 0) {
-          throw new Error(dx);
-        }
-        if (dx >= collisionDistance) {
-          // If fish2 is too far on the right, all further
-          // fishes are too far on the right
-          break;
-        }
+        for (var j = i + 1; j < length; ++j) {
+          var fish2 = state.piranhas[j];
+          if (!fish2) {
+            continue;
+          }
 
-        dy = fish2.y - fish.y;
-        if (Math.abs(dy) <= collisionDistance) {
-          // We have a collision
-          console.log("Fish collision", Math.round(dx), Math.round(dy), collisionDistance);
-          fish.die();
-          fish2.die();
-          state.piranhas[i] = null;
-          state.piranhas[j] = null;
+          collisionDetections++;
+          dx = fish2.x - fish.x; // Necessarily >= 0
+          if (dx >= collisionDistance) {
+            // If fish2 is too far on the right, all further
+            // fishes are too far on the right
+            break;
+          }
+
+          dy = fish2.y - fish.y;
+          if (Math.abs(dy) <= collisionDistance) {
+            // We have a collision
+            console.log("Fish collision", Math.round(dx), Math.round(dy), collisionDistance);
+            fish.die();
+            fish2.die();
+            state.piranhas[i] = null;
+            state.piranhas[j] = null;
+          }
         }
-      }
-      if (fish) {
-        ++remainingFish;
+        if (fish) {
+          ++remainingFish;
+        }
       }
     }
 

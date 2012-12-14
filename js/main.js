@@ -397,22 +397,22 @@
           ++remainingFish;
         }
       }
-    }
 
-    // Victory if there is 0 or 1 fish
-    if (remainingFish <= 1) {
-      Game.over(true);
-      return;
-    }
-
-    // Clean up `state.piranhas` every once in a while
-    if (remainingFish < state.piranhas.length / 2) {
-      var piranhas = [];
-      for (i = 0 ; i < state.piranhas.length; ++i) {
-        piranhas.push(state.piranhas[i]);
-        // If |state.piranhas[i] == null|, this doesn't do anything
+      // Victory if there is 0 or 1 fish
+      if (remainingFish <= 1) {
+        Game.over(true);
+        return;
       }
-      state.piranhas = piranhas;
+
+      // Clean up `state.piranhas` every once in a while
+      if (remainingFish < state.piranhas.length / 2) {
+        var piranhas = [];
+        for (i = 0 ; i < state.piranhas.length; ++i) {
+          piranhas.push(state.piranhas[i]);
+          // If |state.piranhas[i] == null|, this doesn't do anything
+        }
+        state.piranhas = piranhas;
+      }
     }
 
     // Update statistics

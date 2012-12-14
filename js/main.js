@@ -101,7 +101,16 @@
     if (!this.elt) {
       throw new Error("Could not find sprite element");
     }
-    this.boundingRect = null;
+    var rect = elt.getBoundingClientRect();
+    this._width = 32;
+    this._height = 32;
+    this.boundingRect = {
+      left: 0,
+      right:0,
+      top: 0,
+      bottom: 0
+    };
+    console.log("width", "height", this._width, this._height);
     this.elt.style.position = "absolute";
   };
   Sprite.prototype = {
@@ -129,7 +138,11 @@
         this.elt.style.left = Math.round(this.x) + "px";
         this.elt.style.top = Math.round(this.y) + "px";
       }
-      this.boundingRect = this.elt.getBoundingClientRect();
+      var rect = this.elt.getBoundingClientRect();
+      this.boundingRect.left = rect.left;
+      this.boundingRect.top = rect.top;
+      this.boundingRect.right = this.boundingRect.left + this._width;
+      this.boundingRect.bottom = this.boundingRect.top + this._height;
     },
     collision: function collusion(sprite) {
       if (Options.debugNoCollisions) {

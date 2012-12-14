@@ -102,8 +102,8 @@
       throw new Error("Could not find sprite element");
     }
     var rect = elt.getBoundingClientRect();
-    this._width = 32;
-    this._height = 32;
+    this._rayon = 16;
+    this._collRayon = this._rayon - Options.collisionMargin / 2;
     this.boundingRect = {
       left: 0,
       right:0,
@@ -139,10 +139,8 @@
         this.elt.style.top = Math.round(this.y) + "px";
       }
       var rect = this.elt.getBoundingClientRect();
-      this.boundingRect.left = rect.left;
-      this.boundingRect.top = rect.top;
-      this.boundingRect.right = this.boundingRect.left + this._width;
-      this.boundingRect.bottom = this.boundingRect.top + this._height;
+      this._centerX = rect.left + this._rayon;
+      this._centerY = rect.top + this._rayon;
     },
     collision: function collusion(sprite) {
       if (Options.debugNoCollisions) {
@@ -151,25 +149,10 @@
       if (!sprite) {
         return false;
       }
-      var collisionMargin = Options.collisionMargin;
-      var horiz =
-            (
-              (this.boundingRect.left <= (sprite.boundingRect.left - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.left - collisionMargin)
-            ) ||
-            (
-              (this.boundingRect.left <= (sprite.boundingRect.right - collisionMargin)) && (this.boundingRect.right >= sprite.boundingRect.right - collisionMargin)
-            );
-      if (!horiz) {
-        return false;
-      }
-      var vert =
-            (
-              (this.boundingRect.top <= (sprite.boundingRect.top - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.top - collisionMargin)
-            ) ||
-            (
-              (this.boundingRect.top <= (sprite.boundingRect.bottom - collisionMargin)) && (this.boundingRect.bottom >= sprite.boundingRect.bottom - collisionMargin)
-            );
-      return vert;
+      var dx = this._centerX - sprite._centerX;
+      var dy = this._centerY - sprite._centerY;
+      return ((Math.abs(dx) <= this._collRayon)
+              &&(Math.abs(dy) <= this._collRayon));
     },
     die: function die(timestamp) {
       var self = this;
@@ -357,11 +340,13 @@
     // Detect collisions
 
     var remainingFish = 0;
+    var collisionDetections = 0;
     for (var i = 0; i < state.piranhas.length; ++i) {
       var fish = state.piranhas[i];
       if (!fish) {
         continue;
       }
+      collisionDetections++;
       if (fish.collision(state.me)) {
         state.me.die();
         Game.over(false);
@@ -372,6 +357,7 @@
         if (!fish2) {
           continue;
         }
+        collisionDetections++;
         if (fish.collision(fish2)) {
           fish.die(timestamp);
           fish2.die(timestamp);
@@ -409,7 +395,7 @@
       if (deltaT > 1000) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, ";
+        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetect " + collisionDetections + ", ";
 
         Statistics.framesSinceLastMeasure = 0;
         Statistics.dateOfLastMeasure = now;

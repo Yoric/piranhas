@@ -473,6 +473,12 @@
   var onmousemove = function onmousemove(event) {
     event.preventDefault();
     event.stopPropagation();
+    if (event.target == state.me.elt) {
+      // Prevent some shaking
+      state.delta.x = 0;
+      state.delta.y = 0;
+      return;
+    }
     var dx = event.clientX - state.me.x;
     var dy = event.clientY - state.me.y;
 

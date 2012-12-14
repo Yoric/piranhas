@@ -132,6 +132,9 @@
       this.boundingRect = this.elt.getBoundingClientRect();
     },
     collision: function collusion(sprite) {
+      if (Options.debugNoCollisions) {
+        return false;
+      }
       if (!sprite) {
         return false;
       }
@@ -340,41 +343,39 @@
 
     // Detect collisions
 
-    if (!Options.debugNoCollisions) {
-      var remainingFish = 0;
-      for (var i = 0; i < state.piranhas.length; ++i) {
-        var fish = state.piranhas[i];
-        if (!fish) {
-          continue;
-        }
-        if (fish.collision(state.me)) {
-          state.me.die();
-          Game.over(false);
-          return;
-        }
-        for (var j = i + 1; j < state.piranhas.length; ++j) {
-          var fish2 = state.piranhas[j];
-          if (!fish2) {
-            continue;
-          }
-          if (fish.collision(fish2)) {
-            fish.die(timestamp);
-            fish2.die(timestamp);
-            state.piranhas[i] = null;
-            state.piranhas[j] = null;
-            // Will be removed at the next stage
-          }
-        }
-        if (fish) {
-          ++remainingFish;
-        }
+    var remainingFish = 0;
+    for (var i = 0; i < state.piranhas.length; ++i) {
+      var fish = state.piranhas[i];
+      if (!fish) {
+        continue;
       }
-
-      // Victory if there is 0 or 1 fish
-      if (remainingFish <= 1) {
-        Game.over(true);
+      if (fish.collision(state.me)) {
+        state.me.die();
+        Game.over(false);
         return;
       }
+      for (var j = i + 1; j < state.piranhas.length; ++j) {
+        var fish2 = state.piranhas[j];
+        if (!fish2) {
+          continue;
+        }
+        if (fish.collision(fish2)) {
+          fish.die(timestamp);
+          fish2.die(timestamp);
+          state.piranhas[i] = null;
+          state.piranhas[j] = null;
+          // Will be removed at the next stage
+        }
+      }
+      if (fish) {
+        ++remainingFish;
+      }
+    }
+
+    // Victory if there is 0 or 1 fish
+    if (remainingFish <= 1) {
+      Game.over(true);
+      return;
     }
 
     // Clean up `state.piranhas` every once in a while

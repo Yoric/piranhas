@@ -13,6 +13,9 @@
     // The speed of piranhas, in pixels per milliseconds
     piranhaSpeedFactor: 0.2,
 
+    // General speed factor
+    speedFactor: eltMain.getBoundingClientRect().width / 1000,
+
     // The leniency of collision, in pixels (decrease this value
     // to make collisions more likely).
     collisionMargin: 3,
@@ -285,8 +288,8 @@
     var previousStamp = Game.timeStamp;
     Game.timestamp = timestamp;
 
-    var player_multiply = duration * Options.sombreroSpeedFactor;
-    var piranha_multiply = duration * Options.piranhaSpeedFactor;
+    var player_multiply = duration * Options.sombreroSpeedFactor * Options.speedFactor;
+    var piranha_multiply = duration * Options.piranhaSpeedFactor * Options.speedFactor;
 
     var elapsed = timestamp - Game.chunkStart;
     if (Game.isPaused) {

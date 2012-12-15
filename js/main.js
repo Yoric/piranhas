@@ -34,7 +34,10 @@
     debug: false,
 
     // Set to |true| to remove collision detection
-    debugNoCollisions: false
+    debugNoCollisions: false,
+
+    // Set to |true| to remove movements
+    debugNoMovement: false
   };
 
   // Statistics, useful for debugging

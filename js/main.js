@@ -116,8 +116,8 @@
   var collisionDistance = 29;
 
   var Sprite = function Sprite(elt, x, y) {
-    this._x = x || 0;
-    this._y = y || 0;
+    this.x = x || 0;
+    this.y = y || 0;
     this.elt = elt;
     if (!this.elt) {
       throw new Error("Could not find sprite element");
@@ -126,20 +126,6 @@
     this.elt.style.position = "absolute";
   };
   Sprite.prototype = {
-    get x() {
-      return this._x;
-    },
-    get y() {
-      return this._y;
-    },
-    set x(x) {
-      // Prevent the sombrero from leaving the screen along x
-      this._x = bounded(x, 0, eltMain.clientWidth - 32);
-    },
-    set y(y) {
-      // Prevent the sombrero from leaving the screen along y
-      this._y = bounded(y, 0, eltMain.clientHeight - 32);
-    },
     update: function update() {
       var transform = Cache.transformPropertyName;
       if (transform) {
@@ -292,9 +278,15 @@
       }
       var player_multiply = this.chunkDuration * Options.sombreroSpeedFactor * Options.speedFactor;
       var piranha_multiply = this.chunkDuration * Options.piranhaSpeedFactor * Options.speedFactor;
+
+      var width = eltMain.clientWidth;
+      var height = eltMain.clientHeight;
+
       // Handle movement
-      state.me.x += state.delta.x * player_multiply;
-      state.me.y += state.delta.y * piranha_multiply;
+      state.me.x = bounded(state.me.x + state.delta.x * player_multiply,
+        0, width);
+      state.me.y = bounded(state.me.y + state.delta.y * piranha_multiply,
+        0, height);
       state.me.update();
 
       state.piranhas.forEach(function (fish) {
@@ -303,8 +295,10 @@
         }
         var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
         if (delta) {
-          fish.x += delta.dx * piranha_multiply;
-          fish.y += delta.dy * piranha_multiply;
+          fish.x = bounded(fish.x + delta.dx * piranha_multiply,
+            0, width);
+          fish.y = bounded(fish.y + delta.dy * piranha_multiply,
+            0, height);
           fish.update();
         }
       });

@@ -37,7 +37,7 @@
     debugNoCollisions: false,
 
     // Set to |true| to remove movements
-    debugNoMovement: false
+    debugNoMovements: false
   };
 
   // Statistics, useful for debugging
@@ -273,7 +273,7 @@
       this.actualTimePlayed += frameDuration;
     },
     handleMovement: function handleMovement() {
-      if (Options.debugNoMovement) {
+      if (Options.debugNoMovements) {
         // Skip movement, for debugging purposes
         return;
       }

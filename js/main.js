@@ -211,9 +211,12 @@
       if (Options.debug) {
         Statistics.text = "<measuring> ";
       }
-      Game.totalTime = 0;
-      this.chunkStart = Date.now();
+      this.frameNumber = 0;
       this.timestamp = Date.now();
+      this.previousStamp = 0;
+      this.chunkDuration = 0;
+      this.actualTimePlayed = 0;
+      this.isComplete = false;
       requestAnimationFrame(step);
     },
     pause: function pause() {
@@ -258,10 +261,200 @@
         document.addEventListener("touchend", restart);
       }, 500);
     },
+    handleTime: function handleTime(timestamp) {
+      var frameDuration = timestamp - this.timestamp;
+      this.previousStamp = this.timestamp;
+      this.timestamp = timestamp;
+      this.chunkDuration = frameDuration;
+      ++this.frameNumber;
+      this.actualTimePlayed += frameDuration;
+    },
+    handleMovement: function handleMovement() {
+      if (Options.debugNoMovement) {
+        // Skip movement, for debugging purposes
+        return;
+      }
+      var player_multiply = this.chunkDuration * Options.sombreroSpeedFactor * Options.speedFactor;
+      var piranha_multiply = this.chunkDuration * Options.piranhaSpeedFactor * Options.speedFactor;
+      // Handle movement
+      state.me.x += state.delta.x * player_multiply;
+      state.me.y += state.delta.y * piranha_multiply;
+      state.me.update();
+
+      state.piranhas.forEach(function (fish) {
+        if (!fish) { // Don't update for fishes that have eaten each other
+          return;
+        }
+        var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
+        if (delta) {
+          fish.x += delta.dx * piranha_multiply;
+          fish.y += delta.dy * piranha_multiply;
+          fish.update();
+        }
+      });
+    },
+    handleCleanup: function handleCleanup() {
+      if (Options.debugNoCleanup) {
+        // Skip collision detection, for debugging purposes
+        return;
+      }
+      if (this.frameNumber%2 == 0) {
+        return;
+      }
+      // Every second frame, clean up state.piranhas
+      state.piranhas = state.piranhas.filter(
+        function(x) {
+          return x != null;
+        }
+      );
+      state.piranhas.sort(
+        function compare(a, b) {
+          return a == null || (b != null && a.x <= b.x);
+        }
+      );
+      if (state.piranhas.length <= 1) {
+        this.isComplete = true;
+        this.isVictory = true;
+      }
+    },
+    handleCollisions: function handleCollision() {
+      if (Options.debugNoCollisions) {
+        // Skip collision detection, for debugging purposes
+        return;
+      }
+      if (this.frameNumber%2 == 1) {
+        return;
+      }
+      // Every second frame, detect collisions
+      var collisionDetections = 0;
+      var length = state.piranhas.length;
+      var half = Math.ceil(length);
+      // Detect collisions of fishes between [start, stop[
+      var start = (this.frameNumber / 2) % half;
+      var stop = Math.min(length, start + half);
+      var fish, fish2;
+      var i, j;
+      var dx, dy;
+
+      // Collisions between a fish and the sombrero
+      for (i = start; i < stop; ++i) {
+        fish = state.piranhas[i];
+        if (!fish) {
+          continue;
+        }
+        collisionDetections++;
+        dx = fish.x - state.me.x;
+
+        // If the fish is too far on the right, all further
+        // fishes are too far on the right
+        if (dx > collisionDistance) {
+          break;
+        }
+
+        if (Math.abs(dx) > collisionDistance) {
+          // If the fish is too distant from the sombrero, they
+          // are not in collision
+          continue;
+        }
+
+        dy = fish.y - state.me.y;
+        if (Math.abs(dy) > collisionDistance) {
+          // If the fish is too distant from the sombrero,
+          // they are not in collision
+          continue;
+        }
+
+        // Otherwise, we have a collision
+        state.me.die();
+        this.isComplete = true;
+        this.isVictory = false;
+        return;
+      }
+
+      // Collisions between two fishes
+      for (i = start; i < stop; ++i) {
+        fish = state.piranhas[i];
+        if (!fish) {
+          // If the fish has been eliminated, skip it
+          continue;
+        }
+
+        for (j = i + 1; j < stop; ++j) {
+          fish2 = state.piranhas[j];
+          if (!fish2) {
+            // If the fish has been eliminated, skip it
+            continue;
+          }
+
+          collisionDetections++;
+          dx = fish2.x - fish.x; // Necessarily >= 0
+          if (dx >= collisionDistance) {
+            // If fish2 is too far on the right, all further
+            // fishes are too far on the right
+            break;
+          }
+          if (Math.abs(dx) >= collisionDistance) {
+            continue;
+          }
+
+          dy = fish2.y - fish.y;
+          if (Math.abs(dy) < collisionDistance) {
+            // We have a collision
+            fish.die();
+            fish2.die();
+            state.piranhas[i] = null;
+            state.piranhas[j] = null;
+          }
+        }
+      }
+
+      Statistics.collisionDetections = collisionDetections;
+    },
+    handleScore: function handleScore() {
+      eltScore.textContent = Statistics.text + "Score: " + this.actualTimePlayed;
+    },
+    handleStatistics: function handleStatistics(timestamp) {
+      if (!Options.debug) {
+        return;
+      }
+      var now = Date.now();
+      Statistics.framesSinceLastMeasure++;
+      var deltaT = now - Statistics.dateOfLastMeasure;
+      if (deltaT > 300) {
+        var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
+        var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
+        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetections " + Statistics.collisionDetections + ", ";
+
+        Statistics.framesSinceLastMeasure = 0;
+        Statistics.dateOfLastMeasure = now;
+        Statistics.userTime = 0;
+      } else {
+        Statistics.userTime += now - timestamp;
+      }
+    },
+    /**
+     * true if the game is paused, false otherwise
+     */
     isPaused: false,
     isOver: false,
-    chunkStart: null,
-    totalTime: 0
+    /**
+     * How many frames have been shown since the start of the game
+     *
+     * @type {number}
+     */
+    frameNumber: 0,
+    /**
+     * The date at which the latest |step| has started
+     *
+     * @type {number}
+     */
+    timestamp: 0,
+    /**
+     * The date at which the previous |step| has started
+     *
+     * @type {number}
+     */
+    previousStamp: 0
   };
 
   var state = {
@@ -290,161 +483,21 @@
   }
 
   var step = function step(timestamp) {
-    // Handle pause
-    var duration = timestamp - Game.timestamp;
-    var previousStamp = Game.timeStamp;
-    Game.timestamp = timestamp;
-
-    var player_multiply = duration * Options.sombreroSpeedFactor * Options.speedFactor;
-    var piranha_multiply = duration * Options.piranhaSpeedFactor * Options.speedFactor;
-
-    var elapsed = timestamp - Game.chunkStart;
+    Game.handleTime(timestamp);
     if (Game.isPaused) {
-      Game.totalTime += elapsed;
       return;
     }
-
-    // Handle movement
-    state.me.x += state.delta.x * player_multiply;
-    state.me.y += state.delta.y * piranha_multiply;
-    state.me.update();
-
-    state.piranhas.forEach(function (fish) {
-      if (!fish) { // Don't update for fishes that have eaten each other
-        return;
-      }
-      var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
-      if (delta) {
-        fish.x += delta.dx * piranha_multiply;
-        fish.y += delta.dy * piranha_multiply;
-        fish.update();
-      }
-    });
-
-    // Handle score
-
-    eltScore.textContent = Statistics.text + "Score: " + (Game.totalTime + elapsed);
-
-    // Detect collisions
-
-    var remainingFish = 0;
-    var collisionDetections = 0;
-
-    if (!Options.debugNoCollisions) {
-      if (timestamp%2) {
-        // Clean up `state.piranhas` every once in a while
-        var piranhas = [];
-        for (i = 0 ; i < state.piranhas.length; ++i) {
-          var fish = state.piranhas[i];
-          if (fish) {
-            piranhas.push(fish);
-          }
-          // If |state.piranhas[i] == null|, this doesn't do anything
-        }
-
-        // Victory if there is 0 or 1 fish
-        if (piranhas.length <= 1) {
-          Game.over(true);
-          return;
-        }
-        state.piranhas = piranhas;
-
-        // For benchmarking purposes, we can skip collision detection
-        state.piranhas.sort(function(a, b) {
-          if (!a) {
-            return true;
-          }
-          if (!b) {
-            return false;
-          }
-          return a.x >= b.x;
-        });
-      } else {
-
-        var length = state.piranhas.length;
-        var start = timestamp % (length / 2);
-        var stop = Math.min(length, start + length / 2 + 1);
-
-        // Collisions between a fish and the sombrero
-        for (var i = 0; i < length; ++i) {
-          var fish = state.piranhas[i];
-          if (!fish) {
-            continue;
-          }
-          collisionDetections++;
-          remainingFish++;
-          var dx = fish.x - state.me.x;
-          // If the fish is too far on the right, all further
-          // fishes are too far on the right
-          if (dx > collisionDistance) {
-            break;
-          }
-          if (Math.abs(dx) > collisionDistance) {
-            continue;
-          }
-          var dy = fish.y - state.me.y;
-          if (Math.abs(dy) <= collisionDistance) {
-            // We have a collision
-            state.me.die();
-            Game.over(false);
-            return;
-          }
-        }
-
-        // Collisions between two fishes
-        for (i = start; i < stop; ++i) {
-          fish = state.piranhas[i];
-          if (!fish) {
-            continue;
-          }
-
-          for (var j = i + 1; j < stop; ++j) {
-            var fish2 = state.piranhas[j];
-            if (!fish2) {
-              continue;
-            }
-
-            collisionDetections++;
-            dx = fish2.x - fish.x; // Necessarily >= 0
-            if (dx >= collisionDistance) {
-              // If fish2 is too far on the right, all further
-              // fishes are too far on the right
-              break;
-            }
-
-            dy = fish2.y - fish.y;
-            if (Math.abs(dy) <= collisionDistance) {
-              // We have a collision
-              fish.die();
-              fish2.die();
-              state.piranhas[i] = null;
-              state.piranhas[j] = null;
-            }
-          }
-        }
-      }
+    if (Game.isComplete) {
+      Game.over(Game.isVictory);
+      return;
     }
-
-    // Update statistics
-    if (Options.debug) {
-      var now = Date.now();
-      Statistics.framesSinceLastMeasure++;
-      var deltaT = now - Statistics.dateOfLastMeasure;
-      if (deltaT > 300) {
-        var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
-        var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetections " + collisionDetections + ", ";
-
-        Statistics.framesSinceLastMeasure = 0;
-        Statistics.dateOfLastMeasure = now;
-        Statistics.userTime = 0;
-      } else {
-        Statistics.userTime += now - timestamp;
-      }
-    }
+    Game.handleMovement();
+    Game.handleCleanup();
+    Game.handleCollisions();
+    Game.handleScore();
+    Game.handleStatistics(timestamp);
 
     // Loop
-
     requestAnimationFrame(step);
   };
 

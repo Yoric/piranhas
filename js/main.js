@@ -219,7 +219,7 @@
       this.previousStamp = 0;
       this.chunkDuration = 0;
       this.actualTimePlayed = 0;
-      this.isComplete = false;
+      this.isOver = false;
       requestAnimationFrame(step);
     },
     pause: function pause() {
@@ -316,7 +316,7 @@
         }
       );
       if (state.piranhas.length <= 1) {
-        this.isComplete = true;
+        this.isOver = true;
         this.isVictory = true;
       }
     },
@@ -369,7 +369,7 @@
 
         // Otherwise, we have a collision
         state.me.die();
-        this.isComplete = true;
+        this.isOver = true;
         this.isVictory = false;
         return;
       }
@@ -440,6 +440,7 @@
      */
     isPaused: false,
     isOver: false,
+    isVictory: false,
     /**
      * How many frames have been shown since the start of the game
      *
@@ -457,7 +458,9 @@
      *
      * @type {number}
      */
-    previousStamp: 0
+    previousStamp: 0,
+    chunkDuration: 0,
+    actualTimePlayed:0
   };
 
   var state = {
@@ -490,7 +493,7 @@
     if (Game.isPaused) {
       return;
     }
-    if (Game.isComplete) {
+    if (Game.isOver) {
       Game.over(Game.isVictory);
       return;
     }

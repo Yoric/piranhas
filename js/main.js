@@ -283,9 +283,9 @@
       var height = eltMain.clientHeight;
 
       // Handle movement
-      state.me.x = bounded(state.me.x + state.delta.x * player_multiply,
+      state.me.x = boundBy(state.me.x + state.delta.x * player_multiply,
         0, width);
-      state.me.y = bounded(state.me.y + state.delta.y * piranha_multiply,
+      state.me.y = boundBy(state.me.y + state.delta.y * piranha_multiply,
         0, height);
       state.me.update();
 
@@ -295,9 +295,9 @@
         }
         var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
         if (delta) {
-          fish.x = bounded(fish.x + delta.dx * piranha_multiply,
+          fish.x = boundBy(fish.x + delta.dx * piranha_multiply,
             0, width);
-          fish.y = bounded(fish.y + delta.dy * piranha_multiply,
+          fish.y = boundBy(fish.y + delta.dy * piranha_multiply,
             0, height);
           fish.update();
         }
@@ -599,7 +599,7 @@
    * Otherwise, if `x` is below `min`, return `min`.
    * Otherwise, `x` is larger than `max`, return `max`.
    */
-  var bounded = function bounded(x, min, max) {
+  var boundBy = function boundBy(x, min, max) {
     if (x <= min) {
       return min;
     }

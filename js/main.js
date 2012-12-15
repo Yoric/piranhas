@@ -282,26 +282,30 @@
       var width = eltMain.clientWidth;
       var height = eltMain.clientHeight;
 
+      // Cache this for performance reasons
+      var myX = state.me.x;
+      var myY = state.me.y;
+
       // Handle movement
-      state.me.x = boundBy(state.me.x + state.delta.x * player_multiply,
+      state.me.x = boundBy(myX + state.delta.x * player_multiply,
         0, width);
-      state.me.y = boundBy(state.me.y + state.delta.y * piranha_multiply,
+      state.me.y = boundBy(myY + state.delta.y * piranha_multiply,
         0, height);
       state.me.update();
 
-      state.piranhas.forEach(function (fish) {
-        if (!fish) { // Don't update for fishes that have eaten each other
-          return;
+      var length = state.piranhas.length;
+      for (var i = 0; i < length; ++i) {
+        var fish = state.piranhas[i];
+        if (!fish) {  // Don't update for fishes that have eaten each other
+          continue;
         }
-        var delta = normalizeDelta(state.me.x - fish.x, state.me.y - fish.y);
+        var delta = normalizeDelta(myX - fish.x, myY - fish.y, piranha_multiply);
         if (delta) {
-          fish.x = boundBy(fish.x + delta.dx * piranha_multiply,
-            0, width);
-          fish.y = boundBy(fish.y + delta.dy * piranha_multiply,
-            0, height);
+          fish.x = boundBy(fish.x + delta.dx, 0, width);
+          fish.y = boundBy(fish.y + delta.dy, 0, height);
           fish.update();
         }
-      });
+      };
 
       if (Options.profileMovement) {
         var timeStop = Date.now();
@@ -614,16 +618,16 @@
   };
 
   var EPSILON = 0.01;
-  var normalizeDelta = function normalizeDelta(dx, dy) {
+  var normalizeDelta = function normalizeDelta(dx, dy, desiredNorm) {
     var norm = Math.sqrt( dx * dx + dy * dy);
     if (norm <= EPSILON) {
       return null;
     }
-    dx = dx / norm;
+    dx = (dx / norm) * desiredNorm;
     if (isNaN(dx)) {
       return null;
     }
-    dy = dy / norm;
+    dy = (dy / norm) * desiredNorm;
     if (isNaN(dy)) {
       return null;
     }
@@ -642,7 +646,7 @@
     var dx = event.clientX - state.me.x;
     var dy = event.clientY - state.me.y;
 
-    var delta = normalizeDelta(dx, dy);
+    var delta = normalizeDelta(dx, dy, 1);
     if (delta) {
       state.delta.x = delta.dx;
       state.delta.y = delta.dy;

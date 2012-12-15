@@ -44,9 +44,10 @@
   var Statistics = {
     frame: 0,
     userTime: 0,
-    averageUserTime: null,
-    averageFPS: null,
-    latestUpdate: 0,
+    collTime: 0,
+    movTime: 0,
+    framesSinceLastMeasure: 0,
+    dateOfLastMeasure: 0,
     text: ""
   };
 
@@ -210,6 +211,9 @@
       // Clear score from previous game
       Statistics.framesSinceLastMeasure = 0;
       Statistics.userTime = 0;
+      Statistics.collTime = 0;
+      Statistics.movTime = 0;
+      Statistics.cleanTime = 0;
       Statistics.dateOfLastMeasure = Date.now();
       if (Options.debug) {
         Statistics.text = "<measuring> ";
@@ -277,6 +281,9 @@
         // Skip movement, for debugging purposes
         return;
       }
+      if (Options.profileMovement) {
+        var timeStart = Date.now();
+      }
       var player_multiply = this.chunkDuration * Options.sombreroSpeedFactor * Options.speedFactor;
       var piranha_multiply = this.chunkDuration * Options.piranhaSpeedFactor * Options.speedFactor;
       // Handle movement
@@ -295,6 +302,11 @@
           fish.update();
         }
       });
+
+      if (Options.profileMovement) {
+        var timeStop = Date.now();
+        Statistics.movTime += timeStop - timeStart;
+      }
     },
     handleCleanup: function handleCleanup() {
       if (Options.debugNoCleanup) {
@@ -303,6 +315,9 @@
       }
       if (this.frameNumber%2 == 0) {
         return;
+      }
+      if (Options.profileCleanup) {
+        var timeStart = Date.now();
       }
       // Every second frame, clean up state.piranhas
       state.piranhas = state.piranhas.filter(
@@ -319,6 +334,10 @@
         this.isOver = true;
         this.isVictory = true;
       }
+      if (Options.profileCleanup) {
+        var timeStop = Date.now();
+        Statistics.cleanTime += timeStop - timeStart;
+      }
     },
     handleCollisions: function handleCollision() {
       if (Options.debugNoCollisions) {
@@ -327,6 +346,9 @@
       }
       if (this.frameNumber%2 == 1) {
         return;
+      }
+      if (Options.profileCollisions) {
+        var timeStart = Date.now();
       }
       // Every second frame, detect collisions
       var collisionDetections = 0;
@@ -411,7 +433,10 @@
         }
       }
 
-      Statistics.collisionDetections = collisionDetections;
+      if (Options.profileCollisions) {
+        var timeStop = Date.now();
+        Statistics.collTime += timeStop - timeStart;
+      }
     },
     handleScore: function handleScore() {
       eltScore.textContent = Statistics.text + "Score: " + this.actualTimePlayed;
@@ -422,17 +447,32 @@
       }
       var now = Date.now();
       Statistics.framesSinceLastMeasure++;
+      Statistics.userTime += now - timestamp;
       var deltaT = now - Statistics.dateOfLastMeasure;
-      if (deltaT > 300) {
+      if (deltaT > 500) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        Statistics.text = Math.round(fps) + "fps, " + Math.round(userTime) + "ms JS/frame, colldetections " + Statistics.collisionDetections + ", ";
+        var text = Math.round(fps) + "fps, " + round(userTime) + "user, ";
 
+        if (Options.profileCollisions) {
+          var collTime = Statistics.collTime / Statistics.framesSinceLastMeasure;
+          text += round(collTime) + "coll, ";
+        }
+        if (Options.profileCleanup) {
+          var cleanTime = Statistics.cleanTime / Statistics.framesSinceLastMeasure;
+          text += round(cleanTime) + "clean, ";
+        }
+        if (Options.profileMovement) {
+          var movTime = Statistics.cleanTime / Statistics.framesSinceLastMeasure;
+          text += round(movTime) + "mov, ";
+        }
+        Statistics.text = text;
         Statistics.framesSinceLastMeasure = 0;
         Statistics.dateOfLastMeasure = now;
         Statistics.userTime = 0;
-      } else {
-        Statistics.userTime += now - timestamp;
+        Statistics.collTime = 0;
+        Statistics.movTime = 0;
+        Statistics.cleanTime = 0;
       }
     },
     /**
@@ -555,6 +595,10 @@
       return max;
     }
     return x;
+  };
+
+  var round = function round(x) {
+    return Math.round(100 * x) / 100;
   };
 
   var EPSILON = 0.01;

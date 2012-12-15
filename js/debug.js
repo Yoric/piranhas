@@ -1,6 +1,28 @@
-window.Piranhas.options.debug = true;
-window.Piranhas.options.debugNoCollisions = true;
-window.Piranhas.options.debugNoMovements = false;
-window.Piranhas.options.profileMovement = true;
-window.Piranhas.options.profileCleanup = true;
-window.Piranhas.options.profileCollisions = true;
+if (window.location.search.length > 1) {
+  (function() {
+    var args = window.location.search.split("&");
+    for (var arg of args) {
+      console.log(arg);
+      switch (arg) {
+      case "debug":
+        window.Piranhas.options.debug = true;
+        break;
+      case "nocoll":
+        window.Piranhas.options.debugNoCollisions = true;
+        break;
+      case "nomov":
+        window.Piranhas.options.debugNoMovements = true;
+        break;
+      case "profcoll":
+        window.Piranhas.options.profileCollisions = true;
+        break;
+      case "profmov":
+        window.Piranhas.options.profileMovement = true;
+        break;
+      case "profclean":
+        window.Piranhas.options.profileCleanup = true;
+        break;
+      }
+    }
+  })();
+}

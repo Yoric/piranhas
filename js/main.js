@@ -37,7 +37,12 @@
     debugNoCollisions: false,
 
     // Set to |true| to remove movements
-    debugNoMovements: false
+    debugNoMovements: false,
+
+    profileCollisions: false,
+    profileMovement: false,
+    profileCleanup: false,
+    profileScore: false
   };
 
   // Statistics, useful for debugging
@@ -214,6 +219,7 @@
       Statistics.collTime = 0;
       Statistics.movTime = 0;
       Statistics.cleanTime = 0;
+      Statistics.scoreTime = 0;
       Statistics.dateOfLastMeasure = Date.now();
       if (Options.debug) {
         Statistics.text = "<measuring> ";
@@ -439,7 +445,14 @@
       }
     },
     handleScore: function handleScore() {
+      if (Options.profileScore) {
+        var timeStart = Date.now();
+      }
       eltScore.textContent = Statistics.text + "Score: " + this.actualTimePlayed;
+      if (Options.profileScore) {
+        var timeStop = Date.now();
+        Statistics.scoreTime += timeStop - timeStart;
+      }
     },
     handleStatistics: function handleStatistics(timestamp) {
       if (!Options.debug) {
@@ -463,8 +476,12 @@
           text += round(cleanTime) + "clean, ";
         }
         if (Options.profileMovement) {
-          var movTime = Statistics.cleanTime / Statistics.framesSinceLastMeasure;
+          var movTime = Statistics.movTime / Statistics.framesSinceLastMeasure;
           text += round(movTime) + "mov, ";
+        }
+        if (Options.profileScore) {
+          var scoreTime = Statistics.scoreTime / Statistics.framesSinceLastMeasure;
+          text += round(scoreTime) + "score, ";
         }
         Statistics.text = text;
         Statistics.framesSinceLastMeasure = 0;
@@ -472,6 +489,7 @@
         Statistics.userTime = 0;
         Statistics.collTime = 0;
         Statistics.movTime = 0;
+        Statistics.scoreTime = 0;
         Statistics.cleanTime = 0;
       }
     },

@@ -1,6 +1,6 @@
 if (window.location.search.length > 1) {
   (function() {
-    var args = window.location.search.split("&");
+    var args = window.location.search.substr(1).split("&");
     for (var arg of args) {
       console.log(arg);
       switch (arg) {
@@ -21,6 +21,9 @@ if (window.location.search.length > 1) {
         break;
       case "profclean":
         window.Piranhas.options.profileCleanup = true;
+        break;
+      case "profscore":
+        window.Piranhas.options.profileScore = true;
         break;
       }
     }

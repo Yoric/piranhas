@@ -293,7 +293,7 @@
       // Handle movement
       state.me.x = boundBy(myX + state.delta.x * player_multiply,
         0, width);
-      state.me.y = boundBy(myY + state.delta.y * piranha_multiply,
+      state.me.y = boundBy(myY + state.delta.y * player_multiply,
         0, height);
       state.me.update();
 

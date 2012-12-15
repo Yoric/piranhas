@@ -449,7 +449,7 @@
       Statistics.framesSinceLastMeasure++;
       Statistics.userTime += now - timestamp;
       var deltaT = now - Statistics.dateOfLastMeasure;
-      if (deltaT > 500) {
+      if (deltaT > 1000) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
         var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
         var text = Math.round(fps) + "fps, " + round(userTime) + "user, ";

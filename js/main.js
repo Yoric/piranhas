@@ -4,6 +4,7 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var size_sombrero=32;
 
   var diagonal = (function() {
     var rect = eltMain.getBoundingClientRect();
@@ -604,13 +605,15 @@
    * Otherwise, `x` is larger than `max`, return `max`.
    */
   var boundBy = function boundBy(x, min, max) {
-    if (x <= min) {
-      return min;
-    }
-    if (x >= max) {
-      return max;
-    }
-    return x;
+    	if(x>(max-size_sombrero)){
+            x=(max-size_sombrero);
+		}
+		
+		if(x<0){
+            x=0;
+		}
+		
+        return x;
   };
 
   var round = function round(x) {

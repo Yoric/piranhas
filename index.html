@@ -7,22 +7,18 @@
    defer="defer"> </script>
    <link rel="stylesheet" href="css/style.css" />
 <meta name="viewport" 
-  content="width=device-width, initial-scale=1.0, user-scalable=no">
+  content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
 </head>
 
 <body style="overflow:hidden">
-<div id="main" style="position:absolute;width:100%;height:100%">
+<div id="background" style="position:absolute;width:100%;height:100%">
 <div>Caramba!</div>
 <div>Hay Piranhas!</div>
 </div>
-<div class="result hidden" id="result_pane">
- <div id="result">
- </div>
- <div>
- (press anywhere to continue)
- </div>
+<canvas id="canvas" style="position:absolute;width:100%;height:100%">
+</canvas>
+<div class="result hidden" id="result">
 </div>
-<div id="me" class="sprite sombrero">
 </div>
 <div id="score" class="score">
 <!--

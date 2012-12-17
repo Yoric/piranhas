@@ -5,9 +5,12 @@
     font-size: x-large;
 }
 body {
-    background-color: black
+    background-color: black;
+    padding: 0;
+    margin: 0;
+    height: 0px;
 }
-#main {
+#background {
     background-image: url("../img/background.png");
 }
 .sprite {
@@ -37,6 +40,7 @@ body {
     height: 32px;
     background: url("../img/sombrero_piranha.png") 0 32px;
 }
+
 .score {
     color: red;
     width: 100%;
@@ -45,28 +49,17 @@ body {
 }
 .result {
     z-index: 3;
-    left: 0pt;
-    top: 0pt;
-    position:absolute;
-    text-align: center;
-    padding-top: 30%;
-    width: 100%;
-    height: 100%;
+//    left: 0pt;
+//    top: 0pt;
+//    position: absolute;
+//    text-align: center;
+//    width: 100%;
+//    height: 100%;
+//    padding-top: 50%;
 }
 .hidden {
     display: none;
 }
-.cache {
-    display: none !important;
-}
-.pause {
-    z-index: 3;
-    position: absolute;
-    padding-top: 20%;
-    width: 100%;
-    height: 100%;
-    background-color: black;
-    opacity: 0.8;
-    filter:alpha(opacity=80); /* For IE <=8 */
-    text-align: center;
+.canvas {
+    height: 0px;
 }

@@ -1,17 +1,24 @@
 (function () {
   "use strict";
-  var eltMain = document.getElementById("main");
+
+  // DOM
+  var eltBackground = document.getElementById("background");
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
-  var eltResultPane = document.getElementById("result_pane");
-  var eltPause = document.getElementById("pause");
-
+  var eltCanvas = document.getElementById("canvas");
+  var backgroundRect = eltBackground.getBoundingClientRect();
   var diagonal = (function() {
-    var rect = eltMain.getBoundingClientRect();
-    var dx = rect.width;
-    var dy = rect.height;
+    var dx = backgroundRect.width;
+    var dy = backgroundRect.height;
     return Math.sqrt(dx * dx, dy * dy);
   })();
+
+  // Canvas
+
+  var imgSprites = new window.Image();
+  imgSprites.src = "img/sombrero_piranha.png";
+
+  var canvasContext = eltCanvas.getContext("2d");
 
   // Gameplay options.
   var Options = {
@@ -39,6 +46,8 @@
 
     // Set to |true| to remove movements
     debugNoMovements: false,
+
+    debugMoveWithTransitions: false,
 
     profileCollisions: false,
     profileMovement: false,
@@ -103,7 +112,7 @@
         "OTransform"
       ];
       for (var i = 0; i < names.length; ++i) {
-        if (typeof eltMain.style[names[i]] != "undefined") {
+        if (typeof eltBackground.style[names[i]] != "undefined") {
           return this._transformPropertyName = names[i];
         }
       }
@@ -116,49 +125,61 @@
 
   var collisionDistance = 29;
 
-  var Sprite = function Sprite(elt, x, y) {
+  /**
+   * Implementation of a Sprite
+   *
+   * @param {Image} image The sprite sheet.
+   * @param frames
+   * @constructor
+   */
+  var Sprite = function Sprite(
+    frames,
+    x, y) {
+    this._frames = frames;
     this.x = x || 0;
     this.y = y || 0;
-    this.elt = elt;
-    if (!this.elt) {
-      throw new Error("Could not find sprite element");
-    }
-    var rect = elt.getBoundingClientRect();
-    this.elt.style.position = "absolute";
+    this.state = 0;
   };
   Sprite.prototype = {
     update: function update() {
-      var transform = Cache.transformPropertyName;
-      if (transform) {
-        var value = "translate(" + Math.round(this.x) + "px, "
-              + Math.round(this.y) +"px)";
-        this.elt.style[transform] = value;
-      } else {
-        this.elt.style.left = Math.round(this.x) + "px";
-        this.elt.style.top = Math.round(this.y) + "px";
-      }
+      var frame = this._frames[this.state];
+      // Draw image
+      canvasContext.drawImage(
+        frame.image,
+        frame.x,
+        frame.y,
+        frame.w,
+        frame.h,
+        Math.round(this.x),
+        Math.round(this.y),
+        frame.w,
+        frame.h
+      );
     },
     die: function die() {
-      var self = this;
-      self.elt.classList.add("dying");
+    },
+    reset: function reset() {
+      this.state = 0;
     }
   };
 
-  var Sombrero = function Sombrero(x, y) {
-    Sprite.call(this, document.getElementById("me"), x, y);
+  var Sombrero = function Sombrero() {
+    var frames = [{image: imgSprites,
+                   x:0,
+                   y:0,
+                   w:32,
+                   h:32}];
+    Sprite.call(this, frames);
   };
   Sombrero.prototype = Object.create(Sprite.prototype);
-  Sombrero.prototype.reset = function reset() {
-    this.elt.classList.remove("dead");
-    this.elt.classList.remove("dying");
-  };
 
   var Piranha = function Piranha(x, y) {
-    var elt = Cache.getDivElement();
-    elt.classList.add("piranha");
-    elt.classList.add("sprite");
-    elt.addEventListener("transitionend", onrecycle);
-    Sprite.call(this, elt, x, y);
+    var frames = [{image: imgSprites,
+                   x:32,
+                   y:0,
+                   w:32,
+                   h:32}];
+    Sprite.call(this, frames, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
 
@@ -187,8 +208,8 @@
       }
 
       piranhas = [];
-      var width = eltMain.clientWidth;
-      var height = eltMain.clientHeight;
+      var width = eltBackground.clientWidth;
+      var height = eltBackground.clientHeight;
       for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
@@ -225,14 +246,12 @@
       }
       if (this.isPaused) {
         this.isPaused = false;
-        eltPause.classList.add("hidden");
         // Allow to resume the game
         this.chunkStart = Date.now();
         this.timestamp = Date.now();
         requestAnimationFrame(step);
       } else {
         this.isPaused = true;
-        eltPause.classList.remove("hidden");
       }
     },
     onblur: function onblur() {
@@ -241,22 +260,28 @@
       }
       else {
         this.isPaused = true;
-        eltPause.classList.remove("hidden");
       }
     },
     over: function over(isVictory) {
-      eltResultPane.classList.remove("hidden");
+      this.clearScreen();
       var text;
+      canvasContext.font = "bold xx-large 'Synchro LET',monospace";
       if (isVictory) {
         text = "Victoria, my sombrero!";
+        canvasContext.fillStyle = "white";
       } else {
         text = "Game over, my sombrero! :(";
+        canvasContext.fillStyle = "red";
       }
-      eltResult.textContent = text;
+      var width = eltBackground.clientWidth;
+      var height = eltBackground.clientHeight;
+      var measure = canvasContext.measureText(text);
+      canvasContext.fillText(text,
+                             (width - measure.width) / 2,
+                             height / 2);
       var restart = function restart() {
         document.removeEventListener("click", restart);
         document.removeEventListener("touchend", restart);
-        eltResultPane.classList.add("hidden");
         return Game.start();
       };
       window.setTimeout(function() {
@@ -283,10 +308,11 @@
       var player_multiply = this.chunkDuration * Options.sombreroSpeedFactor * Options.speedFactor;
       var piranha_multiply = this.chunkDuration * Options.piranhaSpeedFactor * Options.speedFactor;
 
-      var width = eltMain.clientWidth;
-      var height = eltMain.clientHeight;
 
-      // Cache this for performance reasons
+      var width = eltBackground.clientWidth;
+      var height = eltBackground.clientHeight;
+
+      // Cache this for performance
       var myX = state.me.x;
       var myY = state.me.y;
 
@@ -297,20 +323,18 @@
         0, height);
       state.me.update();
 
-      var length = state.piranhas.length;
-      for (var i = 0; i < length; ++i) {
+      for (var i = 0; i < state.piranhas.length; ++i) {
         var fish = state.piranhas[i];
         if (!fish) {  // Don't update for fishes that have eaten each other
           continue;
         }
-        var delta = normalizeDelta(myX - fish.x, myY - fish.y, piranha_multiply);
+        var delta = normalizeDelta(fish.x - myX, fish.y - myY, piranha_multiply);
         if (delta) {
-          fish.x = boundBy(fish.x + delta.dx, 0, width);
-          fish.y = boundBy(fish.y + delta.dy, 0, height);
+          fish.x = boundBy(fish.x - Math.round(delta.dx), 0, width);
+          fish.y = boundBy(fish.y - Math.round(delta.dy), 0, height);
           fish.update();
         }
-      };
-
+      }
       if (Options.profileMovement) {
         var timeStop = Date.now();
         Statistics.movTime += timeStop - timeStart;
@@ -321,9 +345,9 @@
         // Skip collision detection, for debugging purposes
         return;
       }
-      if (this.frameNumber%2 == 0) {
-        return;
-      }
+//      if (this.frameNumber%2 == 0) {
+//        return;
+//      }
       if (Options.profileCleanup) {
         var timeStart = Date.now();
       }
@@ -352,9 +376,9 @@
         // Skip collision detection, for debugging purposes
         return;
       }
-      if (this.frameNumber%2 == 1) {
-        return;
-      }
+//      if (this.frameNumber%2 == 1) {
+//        return;
+//      }
       if (Options.profileCollisions) {
         var timeStart = Date.now();
       }
@@ -363,56 +387,37 @@
       var length = state.piranhas.length;
       var half = Math.ceil(length);
       // Detect collisions of fishes between [start, stop[
-      var start = (this.frameNumber / 2) % half;
-      var stop = Math.min(length, start + half);
       var fish, fish2;
       var i, j;
       var dx, dy;
 
       // Collisions between a fish and the sombrero
-      for (i = start; i < stop; ++i) {
+      for (i = 0; i < length; ++i) {
         fish = state.piranhas[i];
         if (!fish) {
           continue;
         }
         collisionDetections++;
         dx = fish.x - state.me.x;
-
-        // If the fish is too far on the right, all further
-        // fishes are too far on the right
-        if (dx > collisionDistance) {
-          break;
-        }
-
-        if (Math.abs(dx) > collisionDistance) {
-          // If the fish is too distant from the sombrero, they
-          // are not in collision
-          continue;
-        }
-
         dy = fish.y - state.me.y;
-        if (Math.abs(dy) > collisionDistance) {
-          // If the fish is too distant from the sombrero,
-          // they are not in collision
-          continue;
-        }
 
-        // Otherwise, we have a collision
-        state.me.die();
-        this.isOver = true;
-        this.isVictory = false;
-        return;
+        if (dx * dx + dy * dy < collisionDistance * collisionDistance) {
+          state.me.die();
+          this.isOver = true;
+          this.isVictory = false;
+          return;
+        }
       }
 
       // Collisions between two fishes
-      for (i = start; i < stop; ++i) {
+      for (i = 0; i < length; ++i) {
         fish = state.piranhas[i];
         if (!fish) {
           // If the fish has been eliminated, skip it
           continue;
         }
 
-        for (j = i + 1; j < stop; ++j) {
+        for (j = i + 1; j < length; ++j) {
           fish2 = state.piranhas[j];
           if (!fish2) {
             // If the fish has been eliminated, skip it
@@ -426,12 +431,12 @@
             // fishes are too far on the right
             break;
           }
-          if (Math.abs(dx) >= collisionDistance) {
+          if (dx * dx >= collisionDistance * collisionDistance) {
             continue;
           }
 
           dy = fish2.y - fish.y;
-          if (Math.abs(dy) < collisionDistance) {
+          if (dy * dy < collisionDistance * collisionDistance) {
             // We have a collision
             fish.die();
             fish2.die();
@@ -495,6 +500,9 @@
         Statistics.cleanTime = 0;
       }
     },
+    clearScreen: function clearScreen() {
+      canvasContext.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
+    },
     /**
      * true if the game is paused, false otherwise
      */
@@ -528,7 +536,7 @@
       x: 0,
       y: 0
     },
-    me: new Sombrero(),
+    me: new Sombrero(0, 0),
     piranhas: null
   };
 
@@ -557,6 +565,7 @@
       Game.over(Game.isVictory);
       return;
     }
+    Game.clearScreen();
     Game.handleMovement();
     Game.handleCleanup();
     Game.handleCollisions();
@@ -599,20 +608,6 @@
     }
     console.error("Could not determine key");
   };
-
-  // Unpaused onClick
-
-  var onclick = function onclick(){
-    if(Game.isPaused)
-      Game.pause();
-  }
-
-  // Unpaused onClick
-
-  var onclick = function onclick(){
-    if(Game.isPaused)
-      Game.pause();
-  }
 
   /**
    * Return the value in an interval closest to `x`.
@@ -672,12 +667,15 @@
   };
 
   window.addEventListener("keydown", onkeypress);
-  window.addEventListener("click", onclick);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
-  document.addEventListener("touchstart", onmousemove);
   document.addEventListener("touchmove", onmousemove);
-  Game.start();
+
+  eltCanvas.setAttribute("width", backgroundRect.width);
+  eltCanvas.setAttribute("height", backgroundRect.height);
+  imgSprites.onload = function() {
+    Game.start();
+  };
 
   window.Piranhas = {
     options: Options,

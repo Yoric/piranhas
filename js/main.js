@@ -4,6 +4,9 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var restartButton = document.getElementById("restart");
+  var loose = document.getElementById('loose');
+
 
   var diagonal = (function() {
     var rect = eltMain.getBoundingClientRect();
@@ -246,18 +249,20 @@
       if (isVictory) {
         text = "Victoria, my sombrero!";
       } else {
-        text = "Game over, my sombrero! :(";
+        text = "Game over, my sombrero!";
       }
-      eltResult.textContent = text;
+      eventModal(text, isVictory);
       var restart = function restart() {
+		loose.display = "none";
+        restartButton.removeEventListener("click", restart);
         document.removeEventListener("click", restart);
-        document.removeEventListener("touchend", restart);
         eltResultPane.classList.add("hidden");
+        eventHideModal(isVictory);
         return Game.start();
       };
       window.setTimeout(function() {
-        document.addEventListener("click", restart);
-        document.addEventListener("touchend", restart);
+        restartButton.addEventListener('click',restart);
+		document.addEventListener('click',restart);
       }, 500);
     },
     handleTime: function handleTime(timestamp) {
@@ -543,6 +548,52 @@
     alert("This application requires a browser implementing requestAnimationFrame");
     throw new Error("This application requires a browser implementing requestAnimationFrame");
   }
+
+
+
+  var eventModal = function (text, flag){
+    var dialog = document.getElementById("dialog");
+    var message = document.getElementById('messageEnd');
+    var scoreFinal = document.getElementById('scoreFinal');	
+	
+    message.innerHTML= text;
+
+    var maskWidth = window.innerWidth;
+    var maskHeight = window.innerHeight;
+    var mask = document.getElementById("mask");
+    mask.style.width = maskWidth+"px";
+    mask.style.height = maskHeight+"px";
+
+
+    mask.style.display = "block";
+
+    dialog.style.width ="400px";
+    dialog.style.height = "200px";
+    dialog.style.left = Math.round(maskWidth/2)-200+"px";
+    dialog.style.top = Math.round(maskHeight/2)-100+"px";
+    dialog.style.display = "block";
+    dialog.style.background = "white";
+    dialog.style.color = "black !important";
+	
+	if(flag === false){
+		loose.style.display = "block";
+	}	
+	
+	
+    scoreFinal.textContent = eltScore.textContent;
+
+ }
+
+ var eventHideModal = function (flag){
+    var dialog = document.getElementById("dialog");
+    var mask = document.getElementById("mask");
+    dialog.style.display = "none";
+    mask.style.display = "none";
+    if(flag === false){
+      loose.style.display = "none";
+    } 
+
+ }
 
   var step = function step(timestamp) {
     Game.handleTime(timestamp);

@@ -4,6 +4,18 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var size_sombrero=32;
+
+  // list of sounds
+  var audioElement_loser = document.createElement('audio');
+  audioElement_loser.setAttribute('src', './audio/loser.wav');
+  
+  var audioElement_winner = document.createElement('audio');
+  audioElement_winner.setAttribute('src', './audio/winner.wav');
+	
+  var audioElement_collision = document.createElement('audio');
+  audioElement_collision.setAttribute('src', './audio/collision.wav');
+
 
   var diagonal = (function() {
     var rect = eltMain.getBoundingClientRect();
@@ -245,8 +257,10 @@
       var text;
       if (isVictory) {
         text = "Victoria, my sombrero!";
+        audioElement_winner.play();
       } else {
         text = "Game over, my sombrero! :(";
+        audioElement_loser.play();
       }
       eltResult.textContent = text;
       var restart = function restart() {
@@ -433,6 +447,7 @@
             fish2.die();
             state.piranhas[i] = null;
             state.piranhas[j] = null;
+            audioElement_collision.play();
           }
         }
       }
@@ -604,13 +619,15 @@
    * Otherwise, `x` is larger than `max`, return `max`.
    */
   var boundBy = function boundBy(x, min, max) {
-    if (x <= min) {
-      return min;
-    }
-    if (x >= max) {
-      return max;
-    }
-    return x;
+    	if(x>(max-size_sombrero)){
+            x=(max-size_sombrero);
+		}
+		
+		if(x<0){
+            x=0;
+		}
+		
+        return x;
   };
 
   var round = function round(x) {

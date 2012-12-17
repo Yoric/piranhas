@@ -257,7 +257,7 @@
         restartButton.removeEventListener("click", restart);
         document.removeEventListener("click", restart);
         eltResultPane.classList.add("hidden");
-        eventHideModal();
+        eventHideModal(isVictory);
         return Game.start();
       };
       window.setTimeout(function() {
@@ -584,11 +584,14 @@
 
  }
 
- var eventHideModal = function (text){
+ var eventHideModal = function (flag){
     var dialog = document.getElementById("dialog");
     var mask = document.getElementById("mask");
     dialog.style.display = "none";
     mask.style.display = "none";
+    if(flag === false){
+      loose.style.display = "none";
+    } 
 
  }
 

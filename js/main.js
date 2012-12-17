@@ -4,6 +4,7 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var sizePictureSombrero = 32;
 
   var diagonal = (function() {
     var rect = eltMain.getBoundingClientRect();
@@ -288,9 +289,9 @@
 
       // Handle movement
       state.me.x = boundBy(myX + state.delta.x * player_multiply,
-        0, width);
+        0, (width-sizePictureSombrero));
       state.me.y = boundBy(myY + state.delta.y * piranha_multiply,
-        0, height);
+        0, (height-sizePictureSombrero));
       state.me.update();
 
       var length = state.piranhas.length;

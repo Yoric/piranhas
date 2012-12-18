@@ -598,9 +598,7 @@
 
   // Unpaused onClick
 
-  window.onclick = onClick;
-
-  var onClick = function onClick(){
+  var onclick = function onclick(){
     if(Game.isPaused)
       Game.pause();
   }
@@ -663,7 +661,7 @@
   };
 
   window.addEventListener("keydown", onkeypress);
-  window.addEventListener("click", onClick);
+  window.addEventListener("click", onclick);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);

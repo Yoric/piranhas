@@ -4,6 +4,7 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
+  var eltPause = document.getElementById("pause");
 
   var diagonal = (function() {
     var rect = eltMain.getBoundingClientRect();
@@ -224,12 +225,14 @@
       }
       if (this.isPaused) {
         this.isPaused = false;
+        eltPause.classList.add("hidden");
         // Allow to resume the game
         this.chunkStart = Date.now();
         this.timestamp = Date.now();
         requestAnimationFrame(step);
       } else {
         this.isPaused = true;
+        eltPause.classList.remove("hidden");
       }
     },
     onblur: function onblur() {
@@ -238,6 +241,7 @@
       }
       else {
         this.isPaused = true;
+        eltPause.classList.remove("hidden");
       }
     },
     over: function over(isVictory) {

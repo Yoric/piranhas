@@ -600,6 +600,20 @@
     console.error("Could not determine key");
   };
 
+  // Unpaused onClick
+
+  var onclick = function onclick(){
+    if(Game.isPaused)
+      Game.pause();
+  }
+
+  // Unpaused onClick
+
+  var onclick = function onclick(){
+    if(Game.isPaused)
+      Game.pause();
+  }
+
   /**
    * Return the value in an interval closest to `x`.
    *
@@ -658,6 +672,7 @@
   };
 
   window.addEventListener("keydown", onkeypress);
+  window.addEventListener("click", onclick);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);

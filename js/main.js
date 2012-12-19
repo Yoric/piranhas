@@ -607,6 +607,13 @@
       Game.pause();
   }
 
+  // Unpaused onClick
+
+  var onclick = function onclick(){
+    if(Game.isPaused)
+      Game.pause();
+  }
+
   /**
    * Return the value in an interval closest to `x`.
    *

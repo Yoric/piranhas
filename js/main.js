@@ -675,6 +675,7 @@
   window.addEventListener("click", onclick);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
+  document.addEventListener("touchstart", onmousemove);
   document.addEventListener("touchmove", onmousemove);
   Game.start();
 

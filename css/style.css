@@ -1,15 +1,19 @@
 * {
-    
     font-family: "Synchro LET", monospace;
     font-weight: bold;
     font-size: x-large;
 }
 body {
-    background-color: black
+    background-image: url("img/background.png");
+    margin:0;
 
 }
 #main {
-    background-color: black;
+    background-image: url("../img/background.png");
+    margin: 0;
+    position:absolute;
+    width:100%;
+    height:100%
     margin: 0;
 }
 .sprite {
@@ -19,13 +23,16 @@ body {
     position:absolute;
     width: 32px;
     height: 32px;
-    background-size: 100%;
-    background-image: url("../img/liakad_piranha_03.png");
+    background: url("../img/sombrero_piranha.png") 32px 0;
 }
 .dying {
     width: 0px !important;
     height: 0px !important;
     transition: all 1s;
+    -moz-transition: all 1s;
+    -ms-transition: all 1s;
+    -o-transition: all 1s;
+    -webkit-transition: all 1s;
 }
 .dead {
 }
@@ -34,8 +41,7 @@ body {
     position:absolute;
     width: 32px;
     height: 32px;
-    background-size: 100%;
-    background-image: url("../img/sombrero_dave_pena_03.png");
+    background: url("../img/sombrero_piranha.png") 0 32px;
 }
 
 .score {
@@ -58,6 +64,9 @@ body {
     display: none;
 }
 
+.hud{
+  color: white;
+}
 /* Z-index of #mask must lower than #boxes .window */
 #mask {
   position:absolute;
@@ -107,4 +116,40 @@ body {
 
 #restart:hover{
 	color: #fd000b;
+}
+
+.cache {
+    display: none !important;
+}
+
+#loose{
+	position: absolute;
+	z-index:6;
+	background-image: url("../img/c899952a-446f-11e2-836b-175cfefaf868.png");
+	width: 200px;
+	height: 240px; 
+	top : 0px;
+	right: 0px;
+	display : none;
+}
+
+#dialogContent{
+	position: relative;
+	z-index:7;
+}
+
+#restart{
+	background-color: #e38d28;
+	border-color: #ffae32;
+}
+
+#restart:hover{
+	color: #fd000b;
+}
+
+#messageEnf{
+  color: black;
+}
+.cache {
+    display: none !important;
 }

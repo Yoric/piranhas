@@ -345,9 +345,9 @@
         // Skip collision detection, for debugging purposes
         return;
       }
-//      if (this.frameNumber%2 == 0) {
-//        return;
-//      }
+      if (this.frameNumber%2 == 0) {
+        return;
+      }
       if (Options.profileCleanup) {
         var timeStart = Date.now();
       }
@@ -376,9 +376,9 @@
         // Skip collision detection, for debugging purposes
         return;
       }
-//      if (this.frameNumber%2 == 1) {
-//        return;
-//      }
+      if (this.frameNumber%2 == 1) {
+        return;
+      }
       if (Options.profileCollisions) {
         var timeStart = Date.now();
       }
@@ -391,6 +391,10 @@
       var i, j;
       var dx, dy;
 
+      // Cache this for performance
+      var myX = state.me.x;
+      var myY = state.me.y;
+
       // Collisions between a fish and the sombrero
       for (i = 0; i < length; ++i) {
         fish = state.piranhas[i];
@@ -398,8 +402,8 @@
           continue;
         }
         collisionDetections++;
-        dx = fish.x - state.me.x;
-        dy = fish.y - state.me.y;
+        dx = fish.x - myX;
+        dy = fish.y - myY;
 
         if (dx * dx + dy * dy < collisionDistance * collisionDistance) {
           state.me.die();

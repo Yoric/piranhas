@@ -13,53 +13,9 @@ body {
 #background {
     background-image: url("../img/background.png");
 }
-.sprite {
-}
-.piranha {
-    z-index: 2;
-    position:absolute;
-    width: 32px;
-    height: 32px;
-    background: url("../img/sombrero_piranha.png") 32px 0;
-}
-.dying {
-    width: 0px !important;
-    height: 0px !important;
-    transition: all 1s;
-    -moz-transition: all 1s;
-    -ms-transition: all 1s;
-    -o-transition: all 1s;
-    -webkit-transition: all 1s;
-}
-.dead {
-}
-.sombrero {
-    z-index: 1;
-    position:absolute;
-    width: 32px;
-    height: 32px;
-    background: url("../img/sombrero_piranha.png") 0 32px;
-}
-
 .score {
     color: red;
     width: 100%;
     text-align: center;
     position: absolute;
-}
-.result {
-    z-index: 3;
-//    left: 0pt;
-//    top: 0pt;
-//    position: absolute;
-//    text-align: center;
-//    width: 100%;
-//    height: 100%;
-//    padding-top: 50%;
-}
-.hidden {
-    display: none;
-}
-.canvas {
-    height: 0px;
 }

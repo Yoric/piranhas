@@ -79,50 +79,6 @@
     };
   }
 
-
-  var Cache = {
-    // Optimization: reusing DOM nodes
-    _divElements: [],
-    getDivElement: function() {
-      var elt;
-      if (this._divElements.length != 0) {
-        elt = this._divElements.pop();
-        elt.classList.remove("cache");
-      } else {
-        elt = document.createElement("div");
-        document.body.appendChild(elt);
-      }
-      return elt;
-    },
-    recycle: function(elt) {
-      elt.removeEventListener("transitionend", onrecycle);
-      elt.className = "cache";
-      this._divElements.push(elt);
-    },
-    _transformPropertyName: null,
-    get transformPropertyName() {
-      if (this._transformPropertyName) {
-        return this._transformPropertyName;
-      }
-      var names = [
-        "transform",
-        "WebkitTransform",
-        "msTransform",
-        "MozTransform",
-        "OTransform"
-      ];
-      for (var i = 0; i < names.length; ++i) {
-        if (typeof eltBackground.style[names[i]] != "undefined") {
-          return this._transformPropertyName = names[i];
-        }
-      }
-      return null;
-    }
-  };
-  var onrecycle = function onrecycle(e) {
-    Cache.recycle(e.target);
-  };
-
   var collisionDistance = 29;
 
   /**
@@ -139,27 +95,45 @@
     this.x = x || 0;
     this.y = y || 0;
     this.state = 0;
+    this.isDying = false;
+    this.isDead = false;
+    this._dyingSinceStamp = 0;
   };
   Sprite.prototype = {
-    update: function update() {
+    update: function update(timeStamp) {
       var frame = this._frames[this.state];
+      var width;
+      var DEATH_DURATION = 300;
+      if (this.isDying) {
+        if (timeStamp - this._dyingSinceStamp >= DEATH_DURATION) {
+          this.isDead = true;
+          return;
+        }
+        width = Math.max(0.01, frame.w * (1 - (timeStamp - this._dyingSinceStamp) / DEATH_DURATION));
+      } else {
+        width = frame.w;
+      }
       // Draw image
       canvasContext.drawImage(
         frame.image,
         frame.x,
         frame.y,
-        frame.w,
+        width,
         frame.h,
         Math.round(this.x),
         Math.round(this.y),
-        frame.w,
+        width,
         frame.h
       );
     },
-    die: function die() {
+    die: function die(timestamp) {
+      this.isDying = true;
+      this._dyingSinceStamp = timestamp;
     },
     reset: function reset() {
       this.state = 0;
+      this.isDying = false;
+      this.isDead = false;
     }
   };
 
@@ -196,25 +170,22 @@
 
   var Game = {
     start: function start() {
+      // Now
+      var now = Date.now();
+
       // Reset PC
       state.me.reset();
 
       // Reset enemies
-      var piranhas = document.getElementsByClassName("piranha");
+      var piranhas = [];
       var i;
-      var element;
-      while(piranhas.length) {
-        Cache.recycle(piranhas[0]);
-      }
-
-      piranhas = [];
       var width = eltBackground.clientWidth;
       var height = eltBackground.clientHeight;
       for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
         var x = randomNotCenter() * width;
         var y = randomNotCenter() * height;
         var fish = new Piranha(x, y);
-        fish.update();
+        fish.update(now);
         piranhas.push(fish);
       }
       state.piranhas = piranhas;
@@ -228,7 +199,7 @@
       Statistics.movTime = 0;
       Statistics.cleanTime = 0;
       Statistics.scoreTime = 0;
-      Statistics.dateOfLastMeasure = Date.now();
+      Statistics.dateOfLastMeasure = now;
       if (Options.debug) {
         Statistics.text = "<measuring> ";
       }
@@ -297,7 +268,7 @@
       ++this.frameNumber;
       this.actualTimePlayed += frameDuration;
     },
-    handleMovement: function handleMovement() {
+    handleMovement: function handleMovement(timestamp) {
       if (Options.debugNoMovements) {
         // Skip movement, for debugging purposes
         return;
@@ -321,18 +292,18 @@
         0, width);
       state.me.y = boundBy(myY + state.delta.y * player_multiply,
         0, height);
-      state.me.update();
+      state.me.update(timestamp);
 
       for (var i = 0; i < state.piranhas.length; ++i) {
         var fish = state.piranhas[i];
-        if (!fish) {  // Don't update for fishes that have eaten each other
+        if (!fish) {  // Don't update for dead fishes
           continue;
         }
         var delta = normalizeDelta(fish.x - myX, fish.y - myY, piranha_multiply);
         if (delta) {
           fish.x = boundBy(fish.x - Math.round(delta.dx), 0, width);
           fish.y = boundBy(fish.y - Math.round(delta.dy), 0, height);
-          fish.update();
+          fish.update(timestamp);
         }
       }
       if (Options.profileMovement) {
@@ -353,8 +324,8 @@
       }
       // Every second frame, clean up state.piranhas
       state.piranhas = state.piranhas.filter(
-        function(x) {
-          return x != null;
+        function accept(x) {
+          return (x != null) && !(x.isDead);
         }
       );
       state.piranhas.sort(
@@ -371,7 +342,7 @@
         Statistics.cleanTime += timeStop - timeStart;
       }
     },
-    handleCollisions: function handleCollision() {
+    handleCollisions: function handleCollision(timestamp) {
       if (Options.debugNoCollisions) {
         // Skip collision detection, for debugging purposes
         return;
@@ -398,7 +369,7 @@
       // Collisions between a fish and the sombrero
       for (i = 0; i < length; ++i) {
         fish = state.piranhas[i];
-        if (!fish) {
+        if (fish.isDying) {
           continue;
         }
         collisionDetections++;
@@ -406,7 +377,7 @@
         dy = fish.y - myY;
 
         if (dx * dx + dy * dy < collisionDistance * collisionDistance) {
-          state.me.die();
+          state.me.die(timestamp);
           this.isOver = true;
           this.isVictory = false;
           return;
@@ -416,14 +387,14 @@
       // Collisions between two fishes
       for (i = 0; i < length; ++i) {
         fish = state.piranhas[i];
-        if (!fish) {
+        if (fish.isDying) {
           // If the fish has been eliminated, skip it
           continue;
         }
 
         for (j = i + 1; j < length; ++j) {
           fish2 = state.piranhas[j];
-          if (!fish2) {
+          if (fish2.isDying) {
             // If the fish has been eliminated, skip it
             continue;
           }
@@ -442,10 +413,8 @@
           dy = fish2.y - fish.y;
           if (dy * dy < collisionDistance * collisionDistance) {
             // We have a collision
-            fish.die();
-            fish2.die();
-            state.piranhas[i] = null;
-            state.piranhas[j] = null;
+            fish.die(timestamp);
+            fish2.die(timestamp);
           }
         }
       }
@@ -569,11 +538,11 @@
       Game.over(Game.isVictory);
       return;
     }
-    Game.clearScreen();
-    Game.handleMovement();
-    Game.handleCleanup();
-    Game.handleCollisions();
-    Game.handleScore();
+    Game.clearScreen(timestamp);
+    Game.handleMovement(timestamp);
+    Game.handleCleanup(timestamp);
+    Game.handleCollisions(timestamp);
+    Game.handleScore(timestamp);
     Game.handleStatistics(timestamp);
 
     // Loop

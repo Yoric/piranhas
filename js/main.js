@@ -7,11 +7,19 @@
   var eltResult = document.getElementById("result");
   var eltCanvas = document.getElementById("canvas");
   var backgroundRect = eltBackground.getBoundingClientRect();
-  var diagonal = (function() {
+  var diagonal;
+
+  var adjustSize = function adjustSize() {
+    console.log("Adjusting size");
     var dx = backgroundRect.width;
     var dy = backgroundRect.height;
-    return Math.sqrt(dx * dx, dy * dy);
-  })();
+    diagonal =  Math.sqrt(dx * dx, dy * dy);
+    eltCanvas.setAttribute("width", dx);
+    eltCanvas.setAttribute("height", dy);
+    eltCanvas.width = dx;
+    eltCanvas.height = dy;
+  };
+  adjustSize();
 
   // Canvas
 
@@ -712,9 +720,7 @@
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
   document.addEventListener("touchmove", onmousemove);
-
-  eltCanvas.setAttribute("width", backgroundRect.width);
-  eltCanvas.setAttribute("height", backgroundRect.height);
+  window.addEventListener("resize", adjustSize);
 
   // Load all resources before starting
   imgSprites.onload = function() {

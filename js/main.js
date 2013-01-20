@@ -21,6 +21,7 @@
   imgGameOver.src = "img/game_over.png";
 
   var canvasContext = eltCanvas.getContext("2d");
+  canvasContext.fillStyle = "red";
 
   // Gameplay options.
   var Options = {
@@ -361,8 +362,8 @@
         }
         var delta = normalizeDelta(fish.x - myX, fish.y - myY, piranha_multiply);
         if (delta) {
-          fish.dx = Math.round(delta.dx);
-          fish.dy = Math.round(delta.dy);
+          fish.dx = -Math.round(delta.dx);
+          fish.dy = -Math.round(delta.dy);
         }
       }
       if (Options.profileMovement) {

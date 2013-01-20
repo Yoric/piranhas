@@ -266,7 +266,7 @@
           return;
         }
         Game.clearScreen();
-        Game.handleDisplay();
+        Game.handleDisplay(timestamp);
         canvasContext.fillStyle = "rgba(0, 0, 0, " + zoom + ")";
         canvasContext.fillRect(0, 0, eltCanvas.width, eltCanvas.height);
         var imageWidth = imgGameOver.naturalWidth * scale * zoom;
@@ -343,8 +343,8 @@
         }
         var delta = normalizeDelta(fish.x - myX, fish.y - myY, piranha_multiply);
         if (delta) {
-          fish.x = boundBy(fish.x - Math.round(delta.dx), 0, width);
-          fish.y = boundBy(fish.y - Math.round(delta.dy), 0, height);
+          fish.x = fish.x - Math.round(delta.dx);
+          fish.y = fish.y - Math.round(delta.dy);
         }
       }
       if (Options.profileMovement) {
@@ -374,6 +374,7 @@
           return a == null || (b != null && a.x <= b.x);
         }
       );
+      console.log("Number of piranhas", state.piranhas.length);
       if (state.piranhas.length <= 1) {
         this.isOver = true;
         this.isVictory = true;
@@ -582,7 +583,7 @@
     Game.clearScreen(timestamp);
     Game.handleMovement(timestamp);
     Game.handleCleanup(timestamp);
-    Game.handleDisplay();
+    Game.handleDisplay(timestamp);
     Game.handleCollisions(timestamp);
     Game.handleScore(timestamp);
     Game.handleStatistics(timestamp);

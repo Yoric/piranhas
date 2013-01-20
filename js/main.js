@@ -158,6 +158,24 @@
     Sprite.call(this, frames, x, y);
   };
   Piranha.prototype = Object.create(Sprite.prototype);
+  Object.defineProperty(
+    Piranha.prototype,
+    "dx",
+    {
+      set: function set(dx) {
+        this.x += dx;
+      }
+    }
+  );
+  Object.defineProperty(
+    Piranha.prototype,
+    "dy",
+    {
+      set: function set(dy) {
+        this.y += dy;
+      }
+    }
+  );
 
   var randomNotCenter = function randomNotCenter() {
     var random = Math.random();
@@ -267,7 +285,7 @@
         }
         Game.clearScreen();
         Game.handleDisplay(timestamp);
-        canvasContext.fillStyle = "rgba(0, 0, 0, " + zoom + ")";
+        canvasContext.fillStyle = "rgba(0, 0, 0, " + (zoom * 2 / 3) + ")";
         canvasContext.fillRect(0, 0, eltCanvas.width, eltCanvas.height);
         var imageWidth = imgGameOver.naturalWidth * scale * zoom;
         var imageHeight = imgGameOver.naturalHeight * scale * zoom;
@@ -343,8 +361,8 @@
         }
         var delta = normalizeDelta(fish.x - myX, fish.y - myY, piranha_multiply);
         if (delta) {
-          fish.x = fish.x - Math.round(delta.dx);
-          fish.y = fish.y - Math.round(delta.dy);
+          fish.dx = Math.round(delta.dx);
+          fish.dy = Math.round(delta.dy);
         }
       }
       if (Options.profileMovement) {

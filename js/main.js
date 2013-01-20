@@ -6,20 +6,27 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltCanvas = document.getElementById("canvas");
-  var backgroundRect = eltBackground.getBoundingClientRect();
+  var backgroundRect;
   var diagonal;
 
-  var adjustSize = function adjustSize() {
-    console.log("Adjusting size");
-    var dx = backgroundRect.width;
-    var dy = backgroundRect.height;
-    diagonal =  Math.sqrt(dx * dx, dy * dy);
-    eltCanvas.setAttribute("width", dx);
-    eltCanvas.setAttribute("height", dy);
-    eltCanvas.width = dx;
-    eltCanvas.height = dy;
+  var adjustSizeInProgress = null;
+  var adjustSizeHelper = function adjustSizeHelper() {
+      backgroundRect = eltBackground.getBoundingClientRect();
+      var dx = backgroundRect.width;
+      var dy = backgroundRect.height;
+      console.log("Adjusting size", dx, dy);
+      diagonal =  Math.sqrt(dx * dx, dy * dy);
+      eltCanvas.setAttribute("width", dx);
+      eltCanvas.setAttribute("height", dy);
+      adjustSizeInProgress = null;
   };
-  adjustSize();
+  var adjustSize = function adjustSize() {
+    if (adjustSizeInProgress) {
+      return;
+    }
+    adjustSizeInProgress = window.setTimeout(adjustSizeHelper, 70);
+  };
+  adjustSizeHelper();
 
   // Canvas
 
@@ -273,8 +280,8 @@
       }
     },
     over: function over(isVictory) {
-      var width = eltBackground.clientWidth;
-      var height = eltBackground.clientHeight;
+      var width = backgroundRect.width;
+      var height = backgroundRect.height;
 
       var text;
       var measureText = canvasContext.measureText(text);

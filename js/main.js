@@ -265,10 +265,20 @@
       }
     },
     over: function over(isVictory) {
-      var text;
       var width = eltBackground.clientWidth;
       var height = eltBackground.clientHeight;
-      var scale = Math.min(1, Math.min(width, height) / Math.max(imgGameOver.naturalWidth, imgGameOver.naturalHeight));
+
+      var text;
+      var measureText = canvasContext.measureText(text);
+      var scaleText = 0.3 * (width / measureText.width);
+
+      var scaleImage = 0.9 * Math.min(1, Math.min(width, height) / Math.max(imgGameOver.naturalWidth, imgGameOver.naturalHeight));
+        if (isVictory) {
+          text = "Victoria, my sombrero!";
+        } else {
+          text = "Game over, my sombrero! :(";
+        }
+
       var animationStartStamp = Date.now();
       var ANIMATION_DURATION = 300;
       var step = function step(timestamp) {
@@ -288,25 +298,23 @@
         Game.handleDisplay(timestamp);
         canvasContext.fillStyle = "rgba(0, 0, 0, " + (zoom * 2 / 3) + ")";
         canvasContext.fillRect(0, 0, eltCanvas.width, eltCanvas.height);
-        var imageWidth = imgGameOver.naturalWidth * scale * zoom;
-        var imageHeight = imgGameOver.naturalHeight * scale * zoom;
+        var imageWidth = imgGameOver.naturalWidth * scaleImage * zoom;
+        var imageHeight = imgGameOver.naturalHeight * scaleImage * zoom;
         canvasContext.drawImage(imgGameOver,
                               (width - imageWidth) / 2,
                               (height - imageHeight) / 2,
                               imageWidth,
                               imageHeight
                              );
-        if (isVictory) {
-          text = "Victoria, my sombrero!";
-        } else {
-          text = "Game over, my sombrero! :(";
-        }
         canvasContext.fillStyle = "red";
-        canvasContext.scale(zoom, zoom);
-        var measure = canvasContext.measureText(text);
+        canvasContext.font = "bold " + (24 * zoom * scaleText) +
+          "pt 'Synchro LET',monospace";
+
+        var measureText = canvasContext.measureText(text);
+        var textWidth = measureText.width;
         canvasContext.fillText(text,
-                               (width - measure.width * zoom) / (2 * zoom),
-                               height / (2 * zoom));
+                (width - textWidth) / 2 ,
+                height / 2);
         canvasContext.setTransform(1, 0, 0, 1, 0, 0);
         requestAnimationFrame(step);
       };
@@ -393,7 +401,6 @@
           return a == null || (b != null && a.x <= b.x);
         }
       );
-      console.log("Number of piranhas", state.piranhas.length);
       if (state.piranhas.length <= 1) {
         this.isOver = true;
         this.isVictory = true;

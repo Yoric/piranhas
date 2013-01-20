@@ -17,6 +17,8 @@
 
   var imgSprites = new window.Image();
   imgSprites.src = "img/sombrero_piranha.png";
+  var imgGameOver = new window.Image();
+  imgGameOver.src = "img/game_over.png";
 
   var canvasContext = eltCanvas.getContext("2d");
 
@@ -209,6 +211,9 @@
       this.chunkDuration = 0;
       this.actualTimePlayed = 0;
       this.isOver = false;
+
+      canvasContext.font = "bold xx-large 'Synchro LET',monospace";
+
       requestAnimationFrame(step);
     },
     pause: function pause() {
@@ -223,6 +228,13 @@
         requestAnimationFrame(step);
       } else {
         this.isPaused = true;
+        var text = "(PAUSE)";
+        var width = eltBackground.clientWidth;
+        var height = eltBackground.clientHeight;
+        var measure = canvasContext.measureText(text);
+        canvasContext.fillText(text,
+                             (width - measure.width) / 2,
+                             height / 2);
       }
     },
     onblur: function onblur() {
@@ -234,31 +246,52 @@
       }
     },
     over: function over(isVictory) {
-      this.clearScreen();
       var text;
-      canvasContext.font = "bold xx-large 'Synchro LET',monospace";
-      if (isVictory) {
-        text = "Victoria, my sombrero!";
-        canvasContext.fillStyle = "white";
-      } else {
-        text = "Game over, my sombrero! :(";
-        canvasContext.fillStyle = "red";
-      }
       var width = eltBackground.clientWidth;
       var height = eltBackground.clientHeight;
-      var measure = canvasContext.measureText(text);
-      canvasContext.fillText(text,
-                             (width - measure.width) / 2,
-                             height / 2);
-      var restart = function restart() {
-        document.removeEventListener("click", restart);
-        document.removeEventListener("touchend", restart);
-        return Game.start();
+      var scale = Math.min(1, Math.min(width, height) / Math.max(imgGameOver.naturalWidth, imgGameOver.naturalHeight));
+      var animationStartStamp = Date.now();
+      var ANIMATION_DURATION = 300;
+      var step = function step(timestamp) {
+        var zoom = (timestamp - animationStartStamp) / ANIMATION_DURATION;
+        if (zoom > 1) {
+          // Animation is complete
+          var restart = function restart() {
+            document.removeEventListener("click", restart);
+            document.removeEventListener("touchend", restart);
+            return Game.start();
+          };
+          document.addEventListener("click", restart);
+          document.addEventListener("touchend", restart);
+          return;
+        }
+        Game.clearScreen();
+        Game.handleDisplay();
+        canvasContext.fillStyle = "rgba(0, 0, 0, " + zoom + ")";
+        canvasContext.fillRect(0, 0, eltCanvas.width, eltCanvas.height);
+        var imageWidth = imgGameOver.naturalWidth * scale * zoom;
+        var imageHeight = imgGameOver.naturalHeight * scale * zoom;
+        canvasContext.drawImage(imgGameOver,
+                              (width - imageWidth) / 2,
+                              (height - imageHeight) / 2,
+                              imageWidth,
+                              imageHeight
+                             );
+        if (isVictory) {
+          text = "Victoria, my sombrero!";
+        } else {
+          text = "Game over, my sombrero! :(";
+        }
+        canvasContext.fillStyle = "red";
+        canvasContext.scale(zoom, zoom);
+        var measure = canvasContext.measureText(text);
+        canvasContext.fillText(text,
+                               (width - measure.width * zoom) / (2 * zoom),
+                               height / (2 * zoom));
+        canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+        requestAnimationFrame(step);
       };
-      window.setTimeout(function() {
-        document.addEventListener("click", restart);
-        document.addEventListener("touchend", restart);
-      }, 500);
+      requestAnimationFrame(step);
     },
     handleTime: function handleTime(timestamp) {
       var frameDuration = timestamp - this.timestamp;
@@ -267,6 +300,16 @@
       this.chunkDuration = frameDuration;
       ++this.frameNumber;
       this.actualTimePlayed += frameDuration;
+    },
+    handleDisplay: function handleDisplay(timestamp) {
+      state.me.update(timestamp);
+      for (var i = 0; i < state.piranhas.length; ++i) {
+        var fish = state.piranhas[i];
+        if (!fish) {
+          continue;
+        }
+        fish.update(timestamp);
+      }
     },
     handleMovement: function handleMovement(timestamp) {
       if (Options.debugNoMovements) {
@@ -292,7 +335,6 @@
         0, width);
       state.me.y = boundBy(myY + state.delta.y * player_multiply,
         0, height);
-      state.me.update(timestamp);
 
       for (var i = 0; i < state.piranhas.length; ++i) {
         var fish = state.piranhas[i];
@@ -303,7 +345,6 @@
         if (delta) {
           fish.x = boundBy(fish.x - Math.round(delta.dx), 0, width);
           fish.y = boundBy(fish.y - Math.round(delta.dy), 0, height);
-          fish.update(timestamp);
         }
       }
       if (Options.profileMovement) {
@@ -541,6 +582,7 @@
     Game.clearScreen(timestamp);
     Game.handleMovement(timestamp);
     Game.handleCleanup(timestamp);
+    Game.handleDisplay();
     Game.handleCollisions(timestamp);
     Game.handleScore(timestamp);
     Game.handleStatistics(timestamp);
@@ -646,8 +688,12 @@
 
   eltCanvas.setAttribute("width", backgroundRect.width);
   eltCanvas.setAttribute("height", backgroundRect.height);
+
+  // Load all resources before starting
   imgSprites.onload = function() {
-    Game.start();
+    imgGameOver.onload = function() {
+      Game.start();
+    };
   };
 
   window.Piranhas = {

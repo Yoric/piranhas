@@ -9,7 +9,7 @@
   var eltPause = document.getElementById("pause");
   var eltInfo = document.getElementById("info");
   var eltInstall = document.getElementById("ribbon_install");
-
+  
 
   var backgroundRect;
   var diagonal;
@@ -43,6 +43,7 @@
   var canvasContext = eltCanvas.getContext("2d");
   canvasContext.fillStyle = "red";
 
+  var sombreroPictureSize=32;//size (px) picture sombrero
   // Gameplay options.
   var Options = {
     // The speed of the sombrero, in pixels per milliseconds
@@ -376,9 +377,9 @@
 
       // Handle movement
       state.me.x = boundBy(myX + state.delta.x * player_multiply,
-        0, width);
+        0, (width-sombreroPictureSize));//not overpass screen delimitation
       state.me.y = boundBy(myY + state.delta.y * player_multiply,
-        0, height);
+        0, (height-sombreroPictureSize));//not overpass screen delimitation
 
       for (var i = 0; i < state.piranhas.length; ++i) {
         var fish = state.piranhas[i];

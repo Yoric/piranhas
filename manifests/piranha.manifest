@@ -7,10 +7,10 @@
   },
   "fullscreen": "true",
   "icons": {
-    "32": "/Yoric/piranhas/img/icon_32.png",
-    "60": "/Yoric/piranhas/img/icon_60.png",
-    "120": "/Yoric/piranhas/img/icon_120.png",
-    "256": "/Yoric/piranhas/img/icon_256.png"
+    "32": "/piranhas/img/icon_32.png",
+    "60": "/piranhas/img/icon_60.png",
+    "120": "/piranhas/img/icon_120.png",
+    "256": "/piranhas/img/icon_256.png"
   },
-  "launch_path": "/Yoric/piranhas/index.html"
+  "launch_path": "/piranhas/index.html"
 }

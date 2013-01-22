@@ -13,10 +13,17 @@ body {
 #background {
     background-image: url("../img/background.png");
 }
+.title {
+    position: absolute;
+    bottom: 0;
+}
 #scores {
     width: 100%;
     text-align: center;
     position: absolute;
+}
+.score {
+    display: block;
 }
 .high_score * {
     color: red;

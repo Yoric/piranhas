@@ -18,8 +18,8 @@
   var adjustSizeInProgress = null;
   var adjustSizeHelper = function adjustSizeHelper() {
       backgroundRect = eltBackground.getBoundingClientRect();
-      var dx = backgroundRect.width;
-      var dy = backgroundRect.height;
+      var dx = Math.round(backgroundRect.width);
+      var dy = Math.round(backgroundRect.height);
       console.log("Adjusting size", dx, dy);
       diagonal =  Math.sqrt(dx * dx, dy * dy);
       eltCanvas.setAttribute("width", dx);

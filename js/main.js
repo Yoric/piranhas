@@ -745,12 +745,12 @@
       console.log("Cannot determine whether application is installed", request.error.message);
     };
     request.onsuccess = function onsuccess() {
-      if (request.status) {
-        console.log("Application is already installed");
+      if (request.result && request.result.manifest.name) {
+        console.log("Application is already installed", request);
         eltInstall.style.visibility = "hidden";
         return;
       }
-      console.log("Setting up installer");
+      console.log("Setting up installer", request);
       eltInstall.addEventListener("click", function install() {
         console.log("Installation requested");
         var request = window.navigator.mozApps.install("http://yoric.github.com/piranhas/manifests/piranha.manifest");

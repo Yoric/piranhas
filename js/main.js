@@ -749,6 +749,8 @@
         console.log("Application is already installed", request);
         eltInstall.style.visibility = "hidden";
         return;
+      } else {
+        console.log("Application isn't installed yet", request);
       }
       console.log("Setting up installer", request);
       eltInstall.addEventListener("click", function install() {

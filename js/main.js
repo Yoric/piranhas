@@ -305,10 +305,14 @@
           var restart = function restart() {
             document.removeEventListener("click", restart);
             document.removeEventListener("touchend", restart);
+            document.removeEventListener("keydown", restart);
+            eltInfo.classList.add("hidden");
             return Game.start();
           };
           document.addEventListener("click", restart);
           document.addEventListener("touchend", restart);
+          document.addEventListener("keydown", restart);
+          eltInfo.classList.remove("hidden");
           return;
         }
         Game.clearScreen();

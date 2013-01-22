@@ -62,7 +62,7 @@
     piranhaSpeedFactor: 0.2,
 
     // General speed factor
-    speedFactor: diagonal / 1000,
+    speedFactor: Math.sqrt(diagonal) / 30,
 
     // The leniency of collision, in pixels (decrease this value
     // to make collisions more likely).

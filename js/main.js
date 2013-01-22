@@ -6,6 +6,11 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltCanvas = document.getElementById("canvas");
+  var eltPause = document.getElementById("pause");
+  var eltInfo = document.getElementById("info");
+  var eltInstall = document.getElementById("ribbon_install");
+
+
   var backgroundRect;
   var diagonal;
 
@@ -259,16 +264,13 @@
         // Allow to resume the game
         this.chunkStart = Date.now();
         this.timestamp = Date.now();
+        eltPause.classList.add("hidden");
+        eltInfo.classList.add("hidden");
         requestAnimationFrame(step);
       } else {
         this.isPaused = true;
-        var text = "(PAUSE)";
-        var width = eltBackground.clientWidth;
-        var height = eltBackground.clientHeight;
-        var measure = canvasContext.measureText(text);
-        canvasContext.fillText(text,
-                             (width - measure.width) / 2,
-                             height / 2);
+        eltPause.classList.remove("hidden");
+        eltInfo.classList.remove("hidden");
       }
     },
     onblur: function onblur() {
@@ -735,6 +737,38 @@
       Game.start();
     };
   };
+
+  // Setup installer only on Firefox
+  if ("mozApps" in window.navigator) {
+    var request = window.navigator.mozApps.getSelf();
+    request.onerror = function onerror() {
+      console.log("Cannot determine whether application is installed", request.error.message);
+    };
+    request.onsuccess = function onsuccess() {
+      if (request.status) {
+        console.log("Application is already installed");
+        eltInstall.style.visibility = "hidden";
+        return;
+      }
+      console.log("Setting up installer");
+      eltInstall.addEventListener("click", function install() {
+        console.log("Installation requested");
+        var request = window.navigator.mozApps.install("http://yoric.github.com/piranhas/manifests/piranha.manifest");
+        request.onsuccess = function () {
+          // Save the App object that is returned
+          var appRecord = this.result;
+          console.log('Installation successful!', appRecord);
+        };
+        request.onerror = function (e) {
+          // Display the error information from the DOMError object
+          console.log('Installation failed!', e);
+        };
+      });
+    };
+  } else {
+    console.log("Hiding installer");
+    eltInstall.style.visibility = "hidden";
+  }
 
   window.Piranhas = {
     options: Options,

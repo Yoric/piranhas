@@ -19,3 +19,24 @@ body {
     text-align: center;
     position: absolute;
 }
+.hidden {
+    visibility: hidden;
+}
+.pause_text {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+}
+.ribbon_right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+}
+#ribbon_left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
+}

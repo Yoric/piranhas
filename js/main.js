@@ -1,15 +1,16 @@
 (function () {
   "use strict";
 
-  // DOM
+  // DOM and dimensions
   var eltBackground = document.getElementById("background");
-  var eltScore = document.getElementById("score");
+  var eltScores = document.getElementById("scores");
+  var eltCurrentScore = document.getElementById("score");
+  var eltHighScore = document.getElementById("high");
   var eltResult = document.getElementById("result");
   var eltCanvas = document.getElementById("canvas");
   var eltPause = document.getElementById("pause");
   var eltInfo = document.getElementById("info");
   var eltInstall = document.getElementById("ribbon_install");
-  
 
   var backgroundRect;
   var diagonal;
@@ -43,7 +44,15 @@
   var canvasContext = eltCanvas.getContext("2d");
   canvasContext.fillStyle = "red";
 
-  var sombreroPictureSize=32;//size (px) picture sombrero
+  // Database
+  var indexedDB =
+    window.indexedDB ||
+    window.mozIndexedDB ||
+    window.webkitIndexedDB;
+  var db = window.indexedDB.open("Piranhas");
+
+
+  var sombreroPictureSize = 32;//size (px) picture sombrero
   // Gameplay options.
   var Options = {
     // The speed of the sombrero, in pixels per milliseconds
@@ -253,6 +262,7 @@
       this.isOver = false;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
+      eltScores.classList.remove("high_score");
 
       requestAnimationFrame(step);
     },
@@ -518,7 +528,13 @@
       if (Options.profileScore) {
         var timeStart = Date.now();
       }
-      eltScore.textContent = Statistics.text + "Score: " + this.actualTimePlayed;
+      Game.score = this.actualTimePlayed;
+      if (Game.score > Game.highScore) {
+        Game.highScore = Game.score;
+        eltScores.classList.add("high_score");
+      }
+      eltCurrentScore.textContent = Statistics.text + "Score: " + Game.score;
+      eltHighScore.textContent = " High: " + Game.highScore;
       if (Options.profileScore) {
         var timeStop = Date.now();
         Statistics.scoreTime += timeStop - timeStart;
@@ -591,7 +607,9 @@
      */
     previousStamp: 0,
     chunkDuration: 0,
-    actualTimePlayed:0
+    actualTimePlayed:0,
+    highScore: 0,
+    currentScore: 0
   };
 
   var state = {
@@ -758,7 +776,7 @@
         console.log("Application isn't installed yet", request);
       }
       console.log("Setting up installer", request);
-      eltInstall.addEventListener("click", function install() {
+      var install = function install() {
         console.log("Installation requested");
         var request = window.navigator.mozApps.install("http://yoric.github.com/piranhas/manifests/piranha.manifest");
         request.onsuccess = function () {
@@ -770,7 +788,9 @@
           // Display the error information from the DOMError object
           console.log('Installation failed!', e);
         };
-      });
+      };
+      eltInstall.addEventListener("click", install);
+      eltInstall.addEventListener("touchend", install);
     };
   } else {
     console.log("Hiding installer");

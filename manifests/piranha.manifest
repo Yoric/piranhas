@@ -11,5 +11,6 @@
     "60": "/img/icon_60.png",
     "120": "/img/icon_120.png",
     "256": "/img/icon_256.png"
-  }
+  },
+  "launch_path": "/Yoric/piranhas/index.html"
 }

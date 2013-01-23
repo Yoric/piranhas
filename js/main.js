@@ -606,6 +606,8 @@
       }
       if (fishCollisions > 0) {
         Game.recentFishCollisions += fishCollisions + 1;
+        var deltaScore = 2 << fishCollisions;
+        Game.score += deltaScore;
       }
       if (Options.profileCollisions) {
         var timeStop = Date.now();

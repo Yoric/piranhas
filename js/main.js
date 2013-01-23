@@ -260,6 +260,7 @@
       this.previousStamp = 0;
       this.chunkDuration = 0;
       this.actualTimePlayed = 0;
+      this.currentScore = 0;
       this.isOver = false;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
@@ -413,8 +414,10 @@
       if (Options.profileMovement) {
         var timeStart = Date.now();
       }
-      var difficulty_multiplier = Math.log(2 + Game.currentScore / 1000) / Math.log(2);
+      var difficulty_multiplier = Math.log(2 + Game.currentScore / 5000) / Math.log(2);
       var duration_multiplier = this.chunkDuration * Options.speedFactor * difficulty_multiplier;
+      console.log("Current score", Game.currentScore, duration_multiplier);
+      Game.currentScore += Math.round(duration_multiplier);
       var player_multiply =  duration_multiplier * Options.sombreroSpeedFactor;
       var piranha_multiply = duration_multiplier * Options.piranhaSpeedFactor;
 
@@ -565,12 +568,11 @@
       if (Options.profileScore) {
         var timeStart = Date.now();
       }
-      Game.currentScore = this.actualTimePlayed;
       if (Game.currentScore > Game.highScore) {
-        Game.highScore = Game.score;
+        Game.highScore = Game.currentScore;
         eltScores.classList.add("high_score");
       }
-      eltCurrentScore.textContent = Statistics.text + "Score: " + Game.score;
+      eltCurrentScore.textContent = Statistics.text + "Score: " + Game.currentScore;
       eltHighScore.textContent = " High: " + Game.highScore;
       if (Options.profileScore) {
         var timeStop = Date.now();

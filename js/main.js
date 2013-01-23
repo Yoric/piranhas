@@ -75,6 +75,8 @@
     // If |true|, the game doesn't end when all piranhas die
     infiniteMode: true,
 
+    spawnMore: true,
+
     // Delay (in number of points) between two piranha respawns
     spawnEvery: 0.5,
 
@@ -269,6 +271,7 @@
       this.currentScore = 0;
       this.isOver = false;
       this.latestSpawnDifficultyMultiplier = 0;
+      this.recentFishCollisions = 0;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
       eltScores.classList.remove("high_score");
@@ -399,8 +402,21 @@
       if (!Options.infiniteMode) {
         return;
       }
-      var numberOfSpawns = Math.round((this.difficultyMultiplier - this.latestSpawnDifficultyMultiplier) /
-                                      Options.spawnEvery);
+      var spawnFactor = Math.round(
+        (this.difficultyMultiplier - this.latestSpawnDifficultyMultiplier) /
+          Options.spawnEvery);
+      if (spawnFactor <= 0) {
+        return;
+      }
+      var numberOfSpawns = 0;
+      if (Options.spawnMore) {
+        if (this.recentFishCollisions > 0) {
+          numberOfSpawns = 1;
+          this.recentFishCollisions--;
+        }
+      } else {
+        numberOfSpawns = spawnFactor;
+      }
       if (numberOfSpawns <= 0) {
         return;
       }
@@ -522,6 +538,7 @@
       }
       // Every second frame, detect collisions
       var collisionDetections = 0;
+      var fishCollisions = 0;
       var length = state.piranhas.length;
       var half = Math.ceil(length);
       // Detect collisions of fishes between [start, stop[
@@ -582,10 +599,13 @@
             // We have a collision
             fish.die(timestamp);
             fish2.die(timestamp);
+            ++fishCollisions;
           }
         }
       }
-
+      if (fishCollisions > 0) {
+        Game.recentFishCollisions += fishCollisions + 1;
+      }
       if (Options.profileCollisions) {
         var timeStop = Date.now();
         Statistics.collTime += timeStop - timeStart;

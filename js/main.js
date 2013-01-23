@@ -874,6 +874,7 @@
     eltInstall.style.visibility = "hidden";
   }
 
+  /*
   var onfork = function onfork(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -881,7 +882,7 @@
   };
   eltFork.addEventListener("click", onfork);
   eltFork.addEventListener("touchend", onfork);
-
+*/
   window.Piranhas = {
     options: Options,
     statistics: Statistics

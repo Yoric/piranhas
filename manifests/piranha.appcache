@@ -1,8 +1,10 @@
 CACHE MANIFEST
-# Tue Jan 22 15:47:37 CET 2013
+# Wed Jan 23 10:25:36 CET 2013
 index.html
 img/background.png
 img/sombrero_piranha.png
 img/game_over.png
+img/ribbon_left.png
+img/ribbon_right.png
 js/main.js
 css/style.css

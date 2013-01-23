@@ -920,7 +920,9 @@
     console.log("Debugging");
     (function() {
       var args = window.location.search.substr(1).split("&");
-      for (var arg of args) {
+      var i;
+      for (i = 0; i < args.length; ++i) {
+        var arg = args[i];
         console.log(arg);
         switch (arg) {
         case "debug":

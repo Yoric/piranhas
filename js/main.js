@@ -320,11 +320,11 @@
     },
     over: function over(isVictory) {
       // Store high score
-      if (db && Game.score == Game.highScore) {
+      if (db && Game.currentScore == Game.highScore) {
         var transaction = db.transaction(["score"], "readwrite");
         var store = transaction.objectStore("score");
         var request = store.clear();
-        request = store.add(Game.score, Game.score);
+        request = store.add(Game.currentScore, Game.currentScore);
       }
 
       // Display "Game Over"
@@ -413,8 +413,10 @@
       if (Options.profileMovement) {
         var timeStart = Date.now();
       }
-      var player_multiply = this.chunkDuration * Options.sombreroSpeedFactor * Options.speedFactor;
-      var piranha_multiply = this.chunkDuration * Options.piranhaSpeedFactor * Options.speedFactor;
+      var difficulty_multiplier = Math.log(2 + Game.currentScore / 1000) / Math.log(2);
+      var duration_multiplier = this.chunkDuration * Options.speedFactor * difficulty_multiplier;
+      var player_multiply =  duration_multiplier * Options.sombreroSpeedFactor;
+      var piranha_multiply = duration_multiplier * Options.piranhaSpeedFactor;
 
 
       var width = eltBackground.clientWidth;
@@ -563,8 +565,8 @@
       if (Options.profileScore) {
         var timeStart = Date.now();
       }
-      Game.score = this.actualTimePlayed;
-      if (Game.score > Game.highScore) {
+      Game.currentScore = this.actualTimePlayed;
+      if (Game.currentScore > Game.highScore) {
         Game.highScore = Game.score;
         eltScores.classList.add("high_score");
       }
@@ -615,7 +617,7 @@
       }
     },
     clearScreen: function clearScreen() {
-      if (!Options.debugNoClear) {
+      if (Options.debugNoClear) {
         return;
       }
       canvasContext.clearRect(0, 0, eltCanvas.width, eltCanvas.height);

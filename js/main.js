@@ -81,7 +81,7 @@
     // Set to |true| to remove movements
     debugNoMovements: false,
 
-    debugMoveWithTransitions: false,
+    debugNoClear: false,
 
     profileCollisions: false,
     profileMovement: false,
@@ -615,6 +615,9 @@
       }
     },
     clearScreen: function clearScreen() {
+      if (!Options.debugNoClear) {
+        return;
+      }
       canvasContext.clearRect(0, 0, eltCanvas.width, eltCanvas.height);
     },
     /**
@@ -893,6 +896,9 @@
           break;
         case "nocoll":
           window.Piranhas.options.debugNoCollisions = true;
+          break;
+        case "noclear":
+          window.Piranhas.options.debugNoClear = true;
           break;
         case "nomov":
           window.Piranhas.options.debugNoMovements = true;

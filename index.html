@@ -1,11 +1,19 @@
 <!DOCTYPE html>
-<html manifest="manifests/piranha.appcache">
+<!-- <html manifest="manifests/piranha.appcache"> -->
+<html>
  <head>
   <title>Piranhas</title>
    <meta charset="utf-8" />
-   <script type="text/javascript" src="js/main.js"
-   defer="defer"> </script>
-   <link rel="stylesheet" href="css/style.css" />
+   <script defer="defer">
+     // Hack around browsers that do not support 'defer'
+     window.onload = function deferred(){
+        var code = document.createElement("script");
+        code.type="text/javascript";
+        code.src="js/main.js";
+        document.getElementsByTagName("head")[0].appendChild(code);
+    }
+   </script>
+  <link rel="stylesheet" href="css/style.css" />
 <meta name="viewport" 
   content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
 </head>

@@ -49,11 +49,13 @@ body {
 }
 .ribbon_left {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     border: 0;
     background:green;
     padding: 5pt;
     opacity: .8;
+}
+.ribbon_left a {
     text-decoration: none;
 }

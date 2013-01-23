@@ -49,7 +49,7 @@
     window.indexedDB ||
     window.mozIndexedDB ||
     window.webkitIndexedDB;
-  var db = window.indexedDB.open("Piranhas");
+  var db;
 
 
   var sombreroPictureSize = 32;//size (px) picture sombrero
@@ -293,6 +293,15 @@
       }
     },
     over: function over(isVictory) {
+      // Store high score
+      if (db && Game.score == Game.highScore) {
+        var transaction = db.transaction(["score"], "readwrite");
+        var store = transaction.objectStore("score");
+        var request = store.clear();
+        request = store.add(Game.score, Game.score);
+      }
+
+      // Display "Game Over"
       var width = backgroundRect.width;
       var height = backgroundRect.height;
 
@@ -755,9 +764,44 @@
   window.addEventListener("resize", adjustSize);
 
   // Load all resources before starting
+
   imgSprites.onload = function() {
     imgGameOver.onload = function() {
-      Game.start();
+      var fail = function fail() {
+        Game.start();
+      };
+      if (!indexedDB) {
+        fail();
+      }
+
+      // Open the database
+      var request = indexedDB.open("piranhas", 1);
+      request.onfailure = fail;
+      request.onblocked = function onblocked(event) {
+        console.log("Database is blocked", event);
+        fail();
+      };
+      request.onsuccess = function onsuccess(event) {
+        db = event.target.result;
+
+        // Fetch previous high score
+        var request = db.transaction("score").objectStore("score").openCursor();
+        request.onsuccess = function onsuccess(event) {
+          var cursor = event.target.result;
+          if (cursor) {
+            // There is only one score, so we don't need to do much here
+            Game.highScore = cursor.value;
+          }
+          Game.start();
+        };
+      };
+      request.onupgradeneeded = function onupgradeneeded(event) {
+        try {
+          var store = event.target.result.createObjectStore("score");
+        } catch (ex) {
+          console.log("Could not create object store", ex);
+        }
+      };
     };
   };
 

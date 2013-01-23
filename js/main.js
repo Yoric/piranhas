@@ -70,11 +70,12 @@
     collisionMargin: 3,
 
     // The number of piranhas to spawn when the game starts
-    initialNumberOfPiranhas: Math.round(diagonal/300),
+    initialNumberOfPiranhas: Math.round(diagonal/100),
 
     // If |true|, the game doesn't end when all piranhas die
     infiniteMode: true,
 
+    // If |true|, use an alternate infinite mode
     spawnMore: true,
 
     // Delay (in number of points) between two piranha respawns
@@ -937,22 +938,30 @@
 
   // Debugging code
   if (window.location.search.length > 1) {
-    console.log("Debugging");
     (function() {
       var args = window.location.search.substr(1).split("&");
       var i;
       for (i = 0; i < args.length; ++i) {
         var arg = args[i];
-        console.log(arg);
+        console.log("Additional argument", arg);
         switch (arg) {
         case "debug":
-          window.Piranhas.options.debug = true;
+          Options.debug = true;
           break;
         case "nocoll":
-          window.Piranhas.options.debugNoCollisions = true;
+          Options.debugNoCollisions = true;
           break;
         case "noclear":
-          window.Piranhas.options.debugNoClear = true;
+          Options.debugNoClear = true;
+          break;
+        case "morepiranhas":
+          Options.initialNumberOfPiranhas *= 5;
+          break;
+        case "noinfinite":
+          Options.infiniteMode = false;
+          break;
+        case "nospawnmore":
+          Options.spawnMore = false;
           break;
         case "nomov":
           window.Piranhas.options.debugNoMovements = true;
@@ -972,7 +981,5 @@
         }
       }
     })();
-  } else {
-    console.log("No debugging");
   }
 })();

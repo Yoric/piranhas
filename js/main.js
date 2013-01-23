@@ -11,6 +11,7 @@
   var eltPause = document.getElementById("pause");
   var eltInfo = document.getElementById("info");
   var eltInstall = document.getElementById("ribbon_install");
+  var eltFork = document.getElementById("ribbon_fork");
 
   var backgroundRect;
   var diagonal;
@@ -872,6 +873,14 @@
     console.log("Hiding installer");
     eltInstall.style.visibility = "hidden";
   }
+
+  var onfork = function onfork(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    window.open('https://github.com/yoric/piranhas');
+  };
+  eltFork.addEventListener("click", onfork);
+  eltFork.addEventListener("touchend", onfork);
 
   window.Piranhas = {
     options: Options,

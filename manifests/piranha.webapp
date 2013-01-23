@@ -12,5 +12,6 @@
     "120": "/piranhas/img/icon_120.png",
     "256": "/piranhas/img/icon_256.png"
   },
-  "launch_path": "/piranhas/index.html"
+  "launch_path": "/piranhas/index.html",
+  "version": "Wed Jan 23 10:55:50 CET 2013"
 }

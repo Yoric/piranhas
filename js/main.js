@@ -266,22 +266,47 @@
 
       requestAnimationFrame(step);
     },
+    /**
+     * Set the game on pause.
+     *
+     * Do nothing if the game is already on pause.
+     */
     pause: function pause() {
+      if (this.isPaused) {
+        return;
+      }
+      this.isPaused = true;
+      eltPause.classList.remove("hidden");
+      eltInfo.classList.remove("hidden");
+    },
+    /**
+     * Unpause the game.
+     *
+     * Do nothing if the game is not on pause.
+     */
+    unpause: function unpause() {
+      if (!this.isPaused) {
+        return;
+      }
+      this.isPaused = false;
+      // Allow to resume the game
+      this.chunkStart = Date.now();
+      this.timestamp = Date.now();
+      eltPause.classList.add("hidden");
+      eltInfo.classList.add("hidden");
+      requestAnimationFrame(step);
+    },
+    /**
+     * Toggle between pause/unpause
+     */
+    togglePause: function togglePause() {
       if (this.isOver) {
         return;
       }
       if (this.isPaused) {
-        this.isPaused = false;
-        // Allow to resume the game
-        this.chunkStart = Date.now();
-        this.timestamp = Date.now();
-        eltPause.classList.add("hidden");
-        eltInfo.classList.add("hidden");
-        requestAnimationFrame(step);
+        this.unpause();
       } else {
-        this.isPaused = true;
-        eltPause.classList.remove("hidden");
-        eltInfo.classList.remove("hidden");
+        this.pause();
       }
     },
     onblur: function onblur() {
@@ -693,7 +718,7 @@
           state.delta.x = 1;
         }
       } else if (code == window.KeyEvent.DOM_VM_ESCAPE || code == window.KeyEvent.DOM_VK_SPACE) {
-        Game.pause();
+        Game.togglePause();
       }
       return;
     }
@@ -756,11 +781,16 @@
       state.delta.y = delta.dy;
     }
   };
+  var ontouch = function ontouch(event) {
+    Game.unpause();
+    onmousemove(event);
+  };
 
   window.addEventListener("keydown", onkeypress);
   window.addEventListener("blur", Game.onblur.bind(Game));
   document.addEventListener("mousemove", onmousemove);
-  document.addEventListener("touchmove", onmousemove);
+  document.addEventListener("click", ontouch);
+  document.addEventListener("touchmove", ontouch);
   window.addEventListener("resize", adjustSize);
 
   // Load all resources before starting

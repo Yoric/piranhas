@@ -21,8 +21,8 @@
       backgroundRect = eltBackground.getBoundingClientRect();
       var dx = Math.round(backgroundRect.width);
       var dy = Math.round(backgroundRect.height);
-      console.log("Adjusting size", dx, dy);
       diagonal =  Math.sqrt(dx * dx, dy * dy);
+      console.log("Adjusting size", dx, dy, diagonal);
       eltCanvas.setAttribute("width", dx);
       eltCanvas.setAttribute("height", dy);
       adjustSizeInProgress = null;
@@ -70,7 +70,13 @@
     collisionMargin: 3,
 
     // The number of piranhas to spawn when the game starts
-    initialNumberOfPiranhas: 18,
+    initialNumberOfPiranhas: Math.round(diagonal/300),
+
+    // If |true|, the game doesn't end when all piranhas die
+    infiniteMode: true,
+
+    // Delay (in number of points) between two piranha respawns
+    spawnEvery: 0.5,
 
     // Set to |true| to compute and display debug information
     debug: false,
@@ -262,6 +268,7 @@
       this.actualTimePlayed = 0;
       this.currentScore = 0;
       this.isOver = false;
+      this.latestSpawnDifficultyMultiplier = 0;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
       eltScores.classList.remove("high_score");
@@ -388,6 +395,27 @@
       };
       requestAnimationFrame(step);
     },
+    handleSpawn: function handleSpawn(timestamp) {
+      if (!Options.infiniteMode) {
+        return;
+      }
+      var numberOfSpawns = Math.round((this.difficultyMultiplier - this.latestSpawnDifficultyMultiplier) /
+                                      Options.spawnEvery);
+      if (numberOfSpawns <= 0) {
+        return;
+      }
+      var myX = state.me.x;
+      var myY = state.me.y;
+      var width = eltBackground.clientWidth;
+      var height = eltBackground.clientHeight;
+      console.log("Spawning", numberOfSpawns, "piranhas");
+      for (var i = 0; i < numberOfSpawns; ++i) {
+        var x = (myX + (width / 4) * (1 + Math.random())) % width;
+        var y = (myY + (height / 4) * (1 + Math.random())) % height;
+        state.piranhas.push(new Piranha(x, y));
+      }
+      this.latestSpawnDifficultyMultiplier = this.difficultyMultiplier;
+    },
     handleTime: function handleTime(timestamp) {
       var frameDuration = timestamp - this.timestamp;
       this.previousStamp = this.timestamp;
@@ -414,9 +442,8 @@
       if (Options.profileMovement) {
         var timeStart = Date.now();
       }
-      var difficulty_multiplier = Math.log(2 + Game.currentScore / 5000) / Math.log(2);
-      var duration_multiplier = this.chunkDuration * Options.speedFactor * difficulty_multiplier;
-      console.log("Current score", Game.currentScore, duration_multiplier);
+      Game.difficultyMultiplier = Math.log(2 + Game.currentScore / 5000) / Math.log(2);
+      var duration_multiplier = this.chunkDuration * Options.speedFactor * Game.difficultyMultiplier;
       Game.currentScore += Math.round(duration_multiplier);
       var player_multiply =  duration_multiplier * Options.sombreroSpeedFactor;
       var piranha_multiply = duration_multiplier * Options.piranhaSpeedFactor;
@@ -473,7 +500,7 @@
           return a == null || (b != null && a.x <= b.x);
         }
       );
-      if (state.piranhas.length <= 1) {
+      if (!Options.infiniteMode && state.piranhas.length <= 1) {
         this.isOver = true;
         this.isVictory = true;
       }
@@ -693,6 +720,7 @@
     Game.handleCleanup(timestamp);
     Game.handleDisplay(timestamp);
     Game.handleCollisions(timestamp);
+    Game.handleSpawn(timestamp);
     Game.handleScore(timestamp);
     Game.handleStatistics(timestamp);
 

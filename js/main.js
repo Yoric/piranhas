@@ -874,16 +874,6 @@
     eltInstall.style.visibility = "hidden";
   }
 
-  /*
-  var onfork = function onfork(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    window.open('https://github.com/yoric/piranhas');
-  };
-  eltFork.addEventListener("click", onfork);
-  eltFork.addEventListener("touchend", onfork);
-*/
-
   // Exported code
   window.Piranhas = {
     options: Options,

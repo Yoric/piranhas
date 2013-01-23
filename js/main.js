@@ -204,7 +204,7 @@
     "dx",
     {
       set: function set(dx) {
-        this.x += dx;
+        this.x = Math.round(this.x + dx);
       }
     }
   );
@@ -213,7 +213,7 @@
     "dy",
     {
       set: function set(dy) {
-        this.y += dy;
+        this.y = Math.round(this.y + dy);
       }
     }
   );
@@ -243,8 +243,8 @@
       var width = eltBackground.clientWidth;
       var height = eltBackground.clientHeight;
       for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
-        var x = randomNotCenter() * width;
-        var y = randomNotCenter() * height;
+        var x = Math.round(randomNotCenter() * width);
+        var y = Math.round(randomNotCenter() * height);
         var fish = new Piranha(x, y);
         fish.update(now);
         piranhas.push(fish);
@@ -427,8 +427,8 @@
       var height = eltBackground.clientHeight;
       console.log("Spawning", numberOfSpawns, "piranhas");
       for (var i = 0; i < numberOfSpawns; ++i) {
-        var x = (myX + (width / 4) * (1 + Math.random())) % width;
-        var y = (myY + (height / 4) * (1 + Math.random())) % height;
+        var x = Math.round((myX + (width / 4) * (1 + Math.random())) % width);
+        var y = Math.round((myY + (height / 4) * (1 + Math.random())) % height);
         state.piranhas.push(new Piranha(x, y));
       }
       this.latestSpawnDifficultyMultiplier = this.difficultyMultiplier;
@@ -720,12 +720,10 @@
     window.requestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
-    window.msRequestAnimationFrame;
-
-  if (!requestAnimationFrame) {
-    alert("This application requires a browser implementing requestAnimationFrame");
-    throw new Error("This application requires a browser implementing requestAnimationFrame");
-  }
+    window.msRequestAnimationFrame ||
+    function emulateRequestAnimationFrame(f) {
+      window.setTimeout(f, 15);
+    };
 
   var step = function step(timestamp) {
     Game.handleTime(timestamp);

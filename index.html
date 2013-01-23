@@ -7,8 +7,8 @@
      // Hack around browsers that do not support 'defer'
      window.onload = function deferred(){
         var code = document.createElement("script");
-        code.type="text/javascript";
-        code.src="js/main.js";
+        code.type = "text/javascript";
+        code.src = "js/main.js";
         document.getElementsByTagName("head")[0].appendChild(code);
     }
    </script>

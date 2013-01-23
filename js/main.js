@@ -852,7 +852,7 @@
       console.log("Setting up installer", request);
       var install = function install() {
         console.log("Installation requested");
-        var request = window.navigator.mozApps.install("http://yoric.github.com/piranhas/manifests/piranha.manifest");
+        var request = window.navigator.mozApps.install("http://yoric.github.com/piranhas/manifests/piranha.webapp");
         request.onsuccess = function () {
           // Save the App object that is returned
           var appRecord = this.result;

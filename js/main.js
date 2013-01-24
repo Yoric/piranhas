@@ -81,6 +81,9 @@
     // Delay (in number of points) between two piranha respawns
     spawnEvery: 0.5,
 
+    // If |true|, display visual feedback when user touches
+    showFeedback: false,
+
     // Set to |true| to compute and display debug information
     debug: false,
 
@@ -272,7 +275,10 @@
       this.currentScore = 0;
       this.isOver = false;
       this.latestSpawnDifficultyMultiplier = 0;
-      this.recentFishCollisions = 0;
+      this.fishesToRespawn = 0;
+      this.touchX = 0;
+      this.touchY = 0;
+      this.touchTimestamp = 0;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
       eltScores.classList.remove("high_score");
@@ -399,6 +405,9 @@
       };
       requestAnimationFrame(step);
     },
+    /**
+     * Spawn or respawn piranhas as needed
+     */
     handleSpawn: function handleSpawn(timestamp) {
       if (!Options.infiniteMode) {
         return;
@@ -411,9 +420,9 @@
       }
       var numberOfSpawns = 0;
       if (Options.spawnMore) {
-        if (this.recentFishCollisions > 0) {
+        if (this.fishesToRespawn > 0) {
           numberOfSpawns = 1;
-          this.recentFishCollisions--;
+          this.fishesToRespawn--;
         }
       } else {
         numberOfSpawns = spawnFactor;
@@ -449,6 +458,23 @@
           continue;
         }
         fish.update(timestamp);
+      }
+      // Display visual feedback
+      if (!Options.showFeedback) {
+        return;
+      }
+      console.log("Visual feedback", timestamp - this.touchTimestamp);
+      if (timestamp - this.touchTimestamp < 500) {
+        canvasContext.fillStyle = "green";
+        var radius = Math.round(((timestamp - this.touchTimestamp) * 32) / 500);
+        console.log("Radius", radius);
+        canvasContext.arc(
+          this.touchX,
+          this.touchY,
+          radius,
+          0,
+          Math.PI * 2,
+          true);
       }
     },
     handleMovement: function handleMovement(timestamp) {
@@ -605,7 +631,7 @@
         }
       }
       if (fishCollisions > 0) {
-        Game.recentFishCollisions += fishCollisions + 1;
+        Game.fishesToRespawn += fishCollisions + 1;
         var deltaScore = 2 << fishCollisions;
         Game.score += deltaScore;
       }
@@ -701,7 +727,15 @@
     chunkDuration: 0,
     actualTimePlayed:0,
     highScore: 0,
-    currentScore: 0
+    currentScore: 0,
+    /**
+     * The number of fishes that need to be respawned
+     */
+    fishesToRespawn: 0,
+    // Handling visual feedback for screen touched
+    touchX: 0,
+    touchY: 0,
+    touchTimestamp: 0
   };
 
   var state = {
@@ -821,6 +855,9 @@
   };
 
   var onmousemove = function onmousemove(event) {
+    Game.touchX = event.clientX;
+    Game.touchY = event.clientY;
+    Game.touchTimestamp = Date.now();
     event.preventDefault();
     event.stopPropagation();
     if (event.target == state.me.elt) {
@@ -979,8 +1016,7 @@
           Options.profileScore = true;
           break;
         case "touch":
-          document.addEventListener("touchstart", ontouch);
-          document.addEventListener("touchend", ontouch);
+          Options.showFeedback = true;
           break;
         }
       }

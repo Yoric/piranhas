@@ -964,19 +964,23 @@
           Options.spawnMore = false;
           break;
         case "nomov":
-          window.Piranhas.options.debugNoMovements = true;
+          Options.debugNoMovements = true;
           break;
         case "profcoll":
-          window.Piranhas.options.profileCollisions = true;
+          Options.profileCollisions = true;
           break;
         case "profmov":
-          window.Piranhas.options.profileMovement = true;
+          Options.profileMovement = true;
           break;
         case "profclean":
-          window.Piranhas.options.profileCleanup = true;
+          Options.profileCleanup = true;
           break;
         case "profscore":
-          window.Piranhas.options.profileScore = true;
+          Options.profileScore = true;
+          break;
+        case "touch":
+          document.addEventListener("touchstart", ontouch);
+          document.addEventListener("touchend", ontouch);
           break;
         }
       }

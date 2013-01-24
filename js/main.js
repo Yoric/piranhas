@@ -665,12 +665,7 @@
       var deltaT = now - Statistics.dateOfLastMeasure;
       if (deltaT > 100) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
-        var fps;
-        if ("mozPaintCount" in window) {
-          fps = window.mozPaintCount;
-        } else {
-          fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
-        }
+        var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
         var text = Math.round(fps) + "fps, " + round(userTime) + "user, ";
 
         if (Options.profileCollisions) {

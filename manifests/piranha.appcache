@@ -1,10 +1,10 @@
 CACHE MANIFEST
 # 2013012411471359024478
-index.html
-img/background.png
-img/sombrero_piranha.png
-img/game_over.png
-img/ribbon_left.png
-img/ribbon_right.png
-js/main.js
-css/style.css
+../index.html
+../img/background.png
+../img/sombrero_piranha.png
+../img/game_over.png
+../img/ribbon_left.png
+../img/ribbon_right.png
+../js/main.js
+../css/style.css

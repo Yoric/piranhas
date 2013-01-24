@@ -1025,6 +1025,9 @@
         case "notouch":
           Options.showFeedback = false;
           break;
+        case "nobackground":
+          eltBackground.classList.add("hidden");
+          break;
         }
       }
     })();

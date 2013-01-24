@@ -82,7 +82,7 @@
     spawnEvery: 0.5,
 
     // If |true|, display visual feedback when user touches
-    showFeedback: false,
+    showFeedback: true,
 
     // Set to |true| to compute and display debug information
     debug: false,
@@ -463,11 +463,10 @@
       if (!Options.showFeedback) {
         return;
       }
-      console.log("Visual feedback", timestamp - this.touchTimestamp);
       if (timestamp - this.touchTimestamp < 500) {
-        canvasContext.fillStyle = "green";
+        canvasContext.strokeStyle = "green";
         var radius = Math.round(((timestamp - this.touchTimestamp) * 32) / 500);
-        console.log("Radius", radius);
+        canvasContext.beginPath();
         canvasContext.arc(
           this.touchX,
           this.touchY,
@@ -475,6 +474,7 @@
           0,
           Math.PI * 2,
           true);
+        canvasContext.stroke();
       }
     },
     handleMovement: function handleMovement(timestamp) {
@@ -855,9 +855,6 @@
   };
 
   var onmousemove = function onmousemove(event) {
-    Game.touchX = event.clientX;
-    Game.touchY = event.clientY;
-    Game.touchTimestamp = Date.now();
     event.preventDefault();
     event.stopPropagation();
     if (event.target == state.me.elt) {
@@ -878,6 +875,9 @@
   var ontouch = function ontouch(event) {
     Game.unpause();
     onmousemove(event);
+    Game.touchX = event.clientX;
+    Game.touchY = event.clientY;
+    Game.touchTimestamp = Date.now();
   };
 
   window.addEventListener("keydown", onkeypress);
@@ -1017,6 +1017,9 @@
           break;
         case "touch":
           Options.showFeedback = true;
+          break;
+        case "notouch":
+          Options.showFeedback = false;
           break;
         }
       }

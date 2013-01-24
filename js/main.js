@@ -663,9 +663,14 @@
       Statistics.framesSinceLastMeasure++;
       Statistics.userTime += now - timestamp;
       var deltaT = now - Statistics.dateOfLastMeasure;
-      if (deltaT > 1000) {
+      if (deltaT > 100) {
         var userTime = Statistics.userTime / Statistics.framesSinceLastMeasure;
-        var fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
+        var fps;
+        if ("mozPaintCount" in window) {
+          fps = window.mozPaintCount;
+        } else {
+          fps = (1000 * Statistics.framesSinceLastMeasure) / deltaT;
+        }
         var text = Math.round(fps) + "fps, " + round(userTime) + "user, ";
 
         if (Options.profileCollisions) {
@@ -855,7 +860,6 @@
   };
 
   var onmousemove = function onmousemove(event) {
-    event.preventDefault();
     event.stopPropagation();
     if (event.target == state.me.elt) {
       // Prevent some shaking

@@ -15,16 +15,18 @@
 
   var backgroundRect;
   var diagonal;
+  var width;
+  var height;
 
   var adjustSizeInProgress = null;
   var adjustSizeHelper = function adjustSizeHelper() {
       backgroundRect = eltBackground.getBoundingClientRect();
-      var dx = Math.round(backgroundRect.width);
-      var dy = Math.round(backgroundRect.height);
-      diagonal =  Math.sqrt(dx * dx, dy * dy);
-      console.log("Adjusting size", dx, dy, diagonal);
-      eltCanvas.setAttribute("width", dx);
-      eltCanvas.setAttribute("height", dy);
+      width = Math.round(backgroundRect.width);
+      height = Math.round(backgroundRect.height);
+      diagonal =  Math.sqrt(width * width, height * height);
+      console.log("Adjusting size", width, height, diagonal);
+      eltCanvas.setAttribute("width", width);
+      eltCanvas.setAttribute("height", height);
       adjustSizeInProgress = null;
   };
   var adjustSize = function adjustSize() {
@@ -83,6 +85,9 @@
 
     // If |true|, display visual feedback when user touches
     showFeedback: true,
+
+    // If |true|, display visual feedback when the mouse moves
+    showMouseFeedback: false,
 
     // Set to |true| to compute and display debug information
     debug: false,
@@ -271,7 +276,6 @@
       this.timestamp = Date.now();
       this.previousStamp = 0;
       this.chunkDuration = 0;
-      this.actualTimePlayed = 0;
       this.currentScore = 0;
       this.isOver = false;
       this.latestSpawnDifficultyMultiplier = 0;
@@ -279,6 +283,9 @@
       this.touchX = 0;
       this.touchY = 0;
       this.touchTimestamp = 0;
+      this.mouseX = 0;
+      this.mouseY = 0;
+      this.mouseTimestamp = 0;
 
       canvasContext.font = "bold xx-large 'Synchro LET',monospace";
       eltScores.classList.remove("high_score");
@@ -346,9 +353,6 @@
       }
 
       // Display "Game Over"
-      var width = backgroundRect.width;
-      var height = backgroundRect.height;
-
       var text;
       var measureText = canvasContext.measureText(text);
       var scaleText = 0.3 * (width / measureText.width);
@@ -356,6 +360,8 @@
       var scaleImage = 0.9 * Math.min(1, Math.min(width, height) / Math.max(imgGameOver.naturalWidth, imgGameOver.naturalHeight));
         if (isVictory) {
           text = "Victoria, my sombrero!";
+        } else if (Game.currentScore == Game.highScore) {
+          text = "New high score, sombrero mio!";
         } else {
           text = "Game over, my sombrero! :(";
         }
@@ -448,7 +454,6 @@
       this.timestamp = timestamp;
       this.chunkDuration = frameDuration;
       ++this.frameNumber;
-      this.actualTimePlayed += frameDuration;
     },
     handleDisplay: function handleDisplay(timestamp) {
       state.me.update(timestamp);
@@ -463,6 +468,7 @@
       if (!Options.showFeedback) {
         return;
       }
+      // Visual feedback for touch screen
       if (timestamp - this.touchTimestamp < 500) {
         canvasContext.strokeStyle = "green";
         var radius = Math.round(((timestamp - this.touchTimestamp) * 32) / 500);
@@ -474,6 +480,17 @@
           0,
           Math.PI * 2,
           true);
+        canvasContext.stroke();
+      }
+      if (!Options.showMouseFeedback) {
+        return;
+      }
+      if (timestamp - this.mouseTimestamp < 500) {
+        console.log("Visual feedback for mouse", state.me.x, state.me.y, this.mouseX, this.mouseY);
+        canvasContext.strokeStyle = "green";
+        canvasContext.beginPath();
+        canvasContext.moveTo(state.me.x, state.me.y);
+        canvasContext.lineTo(this.mouseX, this.mouseY);
         canvasContext.stroke();
       }
     },
@@ -725,17 +742,22 @@
      */
     previousStamp: 0,
     chunkDuration: 0,
-    actualTimePlayed:0,
     highScore: 0,
     currentScore: 0,
     /**
      * The number of fishes that need to be respawned
      */
     fishesToRespawn: 0,
+
     // Handling visual feedback for screen touched
     touchX: 0,
     touchY: 0,
-    touchTimestamp: 0
+    touchTimestamp: 0,
+
+    // Handling visual feedback for mouse moved
+    mouseX: 0,
+    mouseY: 0,
+    mouseTimestamp: 0
   };
 
   var state = {
@@ -761,7 +783,9 @@
       window.setTimeout(f, 15);
     };
 
-  var step = function step(timestamp) {
+  var step = function step() {
+    var timestamp = Date.now();
+    console.log("Timestamp", timestamp);
     Game.handleTime(timestamp);
     if (Game.isPaused) {
       return;
@@ -854,14 +878,7 @@
     return {dx: dx, dy: dy};
   };
 
-  var onmousemove = function onmousemove(event) {
-    event.stopPropagation();
-    if (event.target == state.me.elt) {
-      // Prevent some shaking
-      state.delta.x = 0;
-      state.delta.y = 0;
-      return;
-    }
+  var oninput = function oninput(event) {
     var dx = event.clientX - state.me.x;
     var dy = event.clientY - state.me.y;
 
@@ -871,12 +888,20 @@
       state.delta.y = delta.dy;
     }
   };
+  var onmousemove = function onmousemove(event) {
+    event.stopPropagation();
+    Game.mouseX = event.clientX;
+    Game.mouseY = event.clientY;
+    Game.mouseTimestamp = Date.now();
+    oninput(event);
+  };
   var ontouch = function ontouch(event) {
+    event.stopPropagation();
     Game.unpause();
-    onmousemove(event);
     Game.touchX = event.clientX;
     Game.touchY = event.clientY;
     Game.touchTimestamp = Date.now();
+    oninput(event);
   };
 
   window.addEventListener("keydown", onkeypress);

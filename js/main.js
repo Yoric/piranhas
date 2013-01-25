@@ -4,8 +4,8 @@
   var eltScore = document.getElementById("score");
   var eltResult = document.getElementById("result");
   var eltResultPane = document.getElementById("result_pane");
-  var restartButton = document.getElementById("restart");
-  var loose = document.getElementById('loose');
+  var eltRestartButton = document.getElementById("restart");
+  var eltLose = document.getElementById('lose');
 
 
   var diagonal = (function() {
@@ -71,7 +71,6 @@
       DOM_VK_DOWN: 40
     };
   }
-
 
   var Cache = {
     // Optimization: reusing DOM nodes
@@ -253,15 +252,15 @@
       }
       eventModal(text, isVictory);
       var restart = function restart() {
-		loose.display = "none";
-        restartButton.removeEventListener("click", restart);
+		eltLose.display = "none";
+        eltRestartButton.removeEventListener("click", restart);
         document.removeEventListener("click", restart);
         eltResultPane.classList.add("hidden");
         eventHideModal(isVictory);
         return Game.start();
       };
       window.setTimeout(function() {
-        restartButton.addEventListener('click',restart);
+        eltRestartButton.addEventListener('click',restart);
 		document.addEventListener('click',restart);
       }, 500);
     },
@@ -534,8 +533,6 @@
   };
 
   // Create the piranhas
-
-
   // Main event loop
 
   var requestAnimationFrame =
@@ -549,48 +546,37 @@
     throw new Error("This application requires a browser implementing requestAnimationFrame");
   }
 
-
-
-  var eventModal = function (text, flag){
+  var eventModal = function (text, win){
     var dialog = document.getElementById("dialog");
     var message = document.getElementById('messageEnd');
     var scoreFinal = document.getElementById('scoreFinal');	
-	
-    message.innerHTML= text;
-
+    message.textContent= text;
     var maskWidth = window.innerWidth;
     var maskHeight = window.innerHeight;
     var mask = document.getElementById("mask");
     mask.style.width = maskWidth+"px";
     mask.style.height = maskHeight+"px";
-
-
     mask.style.display = "block";
-
     dialog.style.width ="400px";
     dialog.style.height = "200px";
     dialog.style.left = Math.round(maskWidth/2)-200+"px";
     dialog.style.top = Math.round(maskHeight/2)-100+"px";
     dialog.style.display = "block";
     dialog.style.background = "white";
-    dialog.style.color = "black !important";
-	
-	if(flag === false){
-		loose.style.display = "block";
-	}	
-	
-	
+    dialog.style.color = "black !important";	
+	if(win === false){
+		eltLose.style.display = "block";
+	}			
     scoreFinal.textContent = eltScore.textContent;
-
  }
 
- var eventHideModal = function (flag){
+ var eventHideModal = function (win){
     var dialog = document.getElementById("dialog");
     var mask = document.getElementById("mask");
     dialog.style.display = "none";
     mask.style.display = "none";
-    if(flag === false){
-      loose.style.display = "none";
+	if(win === false){
+      eltLose.style.display = "none";
     } 
 
  }

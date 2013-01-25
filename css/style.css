@@ -93,10 +93,10 @@ body {
   color : red;
 }
 
-#loose{
+#lose{
 	position: absolute;
 	z-index:6;
-	background-image: url("../img/c899952a-446f-11e2-836b-175cfefaf868.png");
+	background-image: url("../img/lose_image.png");
 	width: 200px;
 	height: 240px; 
 	top : 0px;
@@ -118,38 +118,6 @@ body {
 	color: #fd000b;
 }
 
-.cache {
-    display: none !important;
-}
-
-#loose{
-	position: absolute;
-	z-index:6;
-	background-image: url("../img/c899952a-446f-11e2-836b-175cfefaf868.png");
-	width: 200px;
-	height: 240px; 
-	top : 0px;
-	right: 0px;
-	display : none;
-}
-
-#dialogContent{
-	position: relative;
-	z-index:7;
-}
-
-#restart{
-	background-color: #e38d28;
-	border-color: #ffae32;
-}
-
-#restart:hover{
-	color: #fd000b;
-}
-
-#messageEnf{
-  color: black;
-}
 .cache {
     display: none !important;
 }

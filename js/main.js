@@ -343,7 +343,7 @@
         this.isPaused = true;
       }
     },
-    over: function over(isVictory) {
+    handleOver: function handleOver(isVictory) {
       // Store high score
       if (db && Game.currentScore == Game.highScore) {
         var transaction = db.transaction(["score"], "readwrite");
@@ -368,7 +368,8 @@
 
       var animationStartStamp = Date.now();
       var ANIMATION_DURATION = 300;
-      var step = function step(timestamp) {
+      var step = function step() {
+        var timestamp = Date.now();
         var zoom = (timestamp - animationStartStamp) / ANIMATION_DURATION;
         if (zoom > 1) {
           // Animation is complete
@@ -440,7 +441,6 @@
       var myY = state.me.y;
       var width = eltBackground.clientWidth;
       var height = eltBackground.clientHeight;
-      console.log("Spawning", numberOfSpawns, "piranhas");
       for (var i = 0; i < numberOfSpawns; ++i) {
         var x = Math.round((myX + (width / 4) * (1 + Math.random())) % width);
         var y = Math.round((myY + (height / 4) * (1 + Math.random())) % height);
@@ -469,10 +469,18 @@
         return;
       }
       // Visual feedback for touch screen
-      if (timestamp - this.touchTimestamp < 500) {
+      var delta = timestamp - this.touchTimestamp;
+      if (0 < delta && delta < 500) {
         canvasContext.strokeStyle = "green";
-        var radius = Math.round(((timestamp - this.touchTimestamp) * 32) / 500);
+        var radius = Math.round(delta * 32 / 500);
         canvasContext.beginPath();
+        console.log("arc",
+          this.touchX,
+          this.touchY,
+          radius,
+          0,
+          Math.PI * 2,
+          true);
         canvasContext.arc(
           this.touchX,
           this.touchY,
@@ -485,13 +493,20 @@
       if (!Options.showMouseFeedback) {
         return;
       }
-      if (timestamp - this.mouseTimestamp < 500) {
-        console.log("Visual feedback for mouse", state.me.x, state.me.y, this.mouseX, this.mouseY);
+      delta = timestamp - this.mouseTimestamp;
+      if (0 < delta && delta < 500) {
         canvasContext.strokeStyle = "green";
+        canvasContext.lineWidth = 5;
+
         canvasContext.beginPath();
-        canvasContext.moveTo(state.me.x, state.me.y);
-        canvasContext.lineTo(this.mouseX, this.mouseY);
-        canvasContext.stroke();
+        var d = normalizeDelta(this.mouseX - state.me.x, this.mouseY - state.me.y,delta);
+        if (d) {
+          canvasContext.moveTo(
+            state.me.x + sombreroPictureSize / 2,
+            state.me.y + sombreroPictureSize / 2);
+          canvasContext.lineTo(state.me.x + d.dx, state.me.y + d.dy);
+          canvasContext.stroke();
+        }
       }
     },
     handleMovement: function handleMovement(timestamp) {
@@ -785,13 +800,12 @@
 
   var step = function step() {
     var timestamp = Date.now();
-    console.log("Timestamp", timestamp);
     Game.handleTime(timestamp);
     if (Game.isPaused) {
       return;
     }
     if (Game.isOver) {
-      Game.over(Game.isVictory);
+      Game.handleOver(Game.isVictory);
       return;
     }
     Game.clearScreen(timestamp);
@@ -861,7 +875,7 @@
     return Math.round(100 * x) / 100;
   };
 
-  var EPSILON = 0.01;
+  var EPSILON = 0.1;
   var normalizeDelta = function normalizeDelta(dx, dy, desiredNorm) {
     var norm = Math.sqrt( dx * dx + dy * dy);
     if (norm <= EPSILON) {
@@ -879,8 +893,8 @@
   };
 
   var oninput = function oninput(event) {
-    var dx = event.clientX - state.me.x;
-    var dy = event.clientY - state.me.y;
+    var dx = event.clientX - (state.me.x + sombreroPictureSize / 2);
+    var dy = event.clientY - (state.me.y + sombreroPictureSize / 2);
 
     var delta = normalizeDelta(dx, dy, 1);
     if (delta) {

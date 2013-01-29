@@ -32,7 +32,7 @@ body {
 .hidden {
     visibility: hidden;
 }
-.pause {
+#pause {
     width: 100%;
     text-align: center;
     position: absolute;

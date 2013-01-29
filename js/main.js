@@ -6,7 +6,7 @@
   var eltScores = document.getElementById("scores");
   var eltCurrentScore = document.getElementById("score");
   var eltHighScore = document.getElementById("high");
-  var eltResult = document.getElementById("result");
+  var eltMenu = document.getElementById("menu");
   var eltCanvas = document.getElementById("canvas");
   var eltPause = document.getElementById("pause");
   var eltInfo = document.getElementById("info");
@@ -795,6 +795,7 @@
     window.webkitRequestAnimationFrame ||
     window.msRequestAnimationFrame ||
     function emulateRequestAnimationFrame(f) {
+      console.log("Emulating requestAnimationFrame");
       window.setTimeout(f, 15);
     };
 

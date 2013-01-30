@@ -257,6 +257,13 @@
     },
     removeBlocker: function removeBlocker(blocker) {
       this._blockers.delete(blocker);
+      // FIXME: Workaround for a weird bug
+      var size;
+      if (typeof this._blockers.size == "function") {
+        size = this._blockers.size();
+      } else {
+        size = this._blockers.size;
+      }
       console.log("Removed blocker", blocker, this._blockers.size);
       if (this._blockers.size == 0) {
         // Fetch previous high score and start game

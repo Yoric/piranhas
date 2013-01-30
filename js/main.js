@@ -6,12 +6,14 @@
   var eltScores = document.getElementById("scores");
   var eltCurrentScore = document.getElementById("score");
   var eltHighScore = document.getElementById("high");
-  var eltMenu = document.getElementById("menu");
   var eltCanvas = document.getElementById("canvas");
   var eltPause = document.getElementById("pause");
-  var eltInfo = document.getElementById("info");
   var eltInstall = document.getElementById("ribbon_install");
   var eltFork = document.getElementById("ribbon_fork");
+  var eltMenu = document.getElementById("menu");
+  var eltDifficulty1 = document.getElementById("difficulty_1");
+  var eltDifficulty2 = document.getElementById("difficulty_2");
+  var eltDifficulty3 = document.getElementById("difficulty_3");
 
   var backgroundRect;
   var diagonal;
@@ -89,6 +91,8 @@
     // If |true|, display visual feedback when the mouse moves
     showMouseFeedback: false,
 
+    difficulty: 1,
+
     // Set to |true| to compute and display debug information
     debug: false,
 
@@ -105,6 +109,20 @@
     profileCleanup: false,
     profileScore: false
   };
+  var DifficultySettings = [
+    {
+      difficulty: 0,
+      infiniteMode: false,
+      piranhaSpeedFactor: 0.1
+    },
+    {
+      difficulty: 1
+    },
+    {
+      difficulty: 2,
+      speedFactor: Math.sqrt(diagonal) / 15
+    }
+  ];
 
   // Statistics, useful for debugging
   var Statistics = {
@@ -226,40 +244,55 @@
     }
   );
 
-  var randomNotCenter = function randomNotCenter() {
-    var random = Math.random();
-    var result;
-    if (random < 0.5) {
-      result = random / 2;
-    } else {
-      result = (1 - random) / 2 + 0.75;
-    }
-    return result;
-  };
-
   var Game = {
+    /**
+     * Add/remove a blocker, i.e. a condition that must be satisfied
+     * before installation.
+     *
+     * Once all blockers are removed, start the game.
+     */
+    addBlocker: function addBlocker(blocker) {
+      this._blockers.add(blocker);
+    },
+    removeBlocker: function removeBlocker(blocker) {
+      this._blockers.delete(blocker);
+      console.log("Removed blocker", blocker, this._blockers.size);
+      if (this._blockers.size == 0) {
+        // Fetch previous high score and start game
+        var request = db.
+              transaction("scorePerDifficulty").
+              objectStore("scorePerDifficulty").get(Options.difficulty);
+        request.onsuccess = function onsuccess(event) {
+          console.log("Previous high score", event);
+          if (event.target.result) {
+            Game.highScore = event.target.result.score;
+          }
+          Game.start();
+        };
+        request.onerror = function onerror(event) {
+          Game.start();
+        };
+      }
+    },
+    _blockers: new window.Set(),
     start: function start() {
       // Now
       var now = Date.now();
 
       // Reset PC
       state.me.reset();
+      var myX = state.me.x = width / 2;
+      var myY = state.me.y = height / 2;
 
       // Reset enemies
       var piranhas = [];
-      var i;
-      var width = eltBackground.clientWidth;
-      var height = eltBackground.clientHeight;
-      for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
-        var x = Math.round(randomNotCenter() * width);
-        var y = Math.round(randomNotCenter() * height);
-        var fish = new Piranha(x, y);
-        fish.update(now);
-        piranhas.push(fish);
-      }
       state.piranhas = piranhas;
-      state.me.x = width / 2;
-      state.me.y = height / 2;
+      var i;
+      for (i = 0; i < Options.initialNumberOfPiranhas; ++i) {
+        var x = Math.round((myX + (width / 4) * (1 + 2 * Math.random())) % width);
+        var y = Math.round((myY + (height / 4) * (1 + 2 * Math.random())) % height);
+        state.piranhas.push(new Piranha(x, y));
+      }
 
       // Clear score from previous game
       Statistics.framesSinceLastMeasure = 0;
@@ -303,7 +336,6 @@
       }
       this.isPaused = true;
       eltPause.classList.remove("hidden");
-      eltInfo.classList.remove("hidden");
     },
     /**
      * Unpause the game.
@@ -319,7 +351,6 @@
       this.chunkStart = Date.now();
       this.timestamp = Date.now();
       eltPause.classList.add("hidden");
-      eltInfo.classList.add("hidden");
       requestAnimationFrame(step);
     },
     /**
@@ -346,10 +377,18 @@
     handleOver: function handleOver(isVictory) {
       // Store high score
       if (db && Game.currentScore == Game.highScore) {
-        var transaction = db.transaction(["score"], "readwrite");
-        var store = transaction.objectStore("score");
-        var request = store.clear();
-        request = store.add(Game.currentScore, Game.currentScore);
+        var store = db.
+              transaction(["scorePerDifficulty"], "readwrite").
+              objectStore("scorePerDifficulty");
+              var data = {difficulty:  Options.difficulty, score: Game.currentScore};
+        console.log("Attempting to write", data);
+        var request = store.put(data);
+        request.onerror = function onerror(event) {
+          console.log("Writing failed", event);
+        };
+        request.onsuccess = function onsuccess() {
+          console.log("Write succeeded");
+        };
       }
 
       // Display "Game Over"
@@ -377,13 +416,11 @@
             document.removeEventListener("click", restart);
             document.removeEventListener("touchend", restart);
             document.removeEventListener("keydown", restart);
-            eltInfo.classList.add("hidden");
             return Game.start();
           };
           document.addEventListener("click", restart);
           document.addEventListener("touchend", restart);
           document.addEventListener("keydown", restart);
-          eltInfo.classList.remove("hidden");
           return;
         }
         Game.clearScreen();
@@ -553,7 +590,7 @@
         Statistics.movTime += timeStop - timeStart;
       }
     },
-    handleCleanup: function handleCleanup() {
+    handleCleanup: function handleCleanup(timestamp) {
       if (Options.debugNoCleanup) {
         // Skip collision detection, for debugging purposes
         return;
@@ -578,6 +615,8 @@
       if (!Options.infiniteMode && state.piranhas.length <= 1) {
         this.isOver = true;
         this.isVictory = true;
+        this.score *= 10;
+        this.handleScore(timestamp);
       }
       if (Options.profileCleanup) {
         var timeStop = Date.now();
@@ -928,45 +967,42 @@
 
   // Load all resources before starting
 
+  Game.addBlocker("imgSprites");
   imgSprites.onload = function() {
-    imgGameOver.onload = function() {
-      var fail = function fail() {
-        Game.start();
-      };
-      if (!indexedDB) {
-        fail();
-      }
-
-      // Open the database
-      var request = indexedDB.open("piranhas", 1);
-      request.onfailure = fail;
-      request.onblocked = function onblocked(event) {
-        console.log("Database is blocked", event);
-        fail();
-      };
-      request.onsuccess = function onsuccess(event) {
-        db = event.target.result;
-
-        // Fetch previous high score
-        var request = db.transaction("score").objectStore("score").openCursor();
-        request.onsuccess = function onsuccess(event) {
-          var cursor = event.target.result;
-          if (cursor) {
-            // There is only one score, so we don't need to do much here
-            Game.highScore = cursor.value;
-          }
-          Game.start();
-        };
-      };
-      request.onupgradeneeded = function onupgradeneeded(event) {
-        try {
-          var store = event.target.result.createObjectStore("score");
-        } catch (ex) {
-          console.log("Could not create object store", ex);
-        }
-      };
-    };
+    Game.removeBlocker("imgSprites");
   };
+  Game.addBlocker("imgGameOver");
+  imgGameOver.onload = function() {
+    Game.removeBlocker("imgGameOver");
+  };
+
+  // Load db before starting
+  (function() {
+    Game.addBlocker("db");
+    var fail = function fail() {
+      Game.removeBlocker("db");
+    };
+    if (!indexedDB) {
+      fail();
+    }
+
+    // Open the database
+    var request = indexedDB.open("piranhas", 2);
+    request.onfailure = fail;
+    request.onblocked = function onblocked(event) {
+      console.log("Database is blocked", event);
+      fail();
+    };
+    request.onsuccess = function onsuccess(event) {
+      db = event.target.result;
+      Game.removeBlocker("db");
+    };
+    request.onupgradeneeded = function onupgradeneeded(event) {
+      var db = event.target.result;
+      var store = db.createObjectStore("scorePerDifficulty",
+        {keyPath: "difficulty"});
+    };
+  })();
 
   // Setup installer only on Firefox
   if ("mozApps" in window.navigator) {
@@ -1005,6 +1041,28 @@
     console.log("Hiding installer");
     eltInstall.style.visibility = "hidden";
   }
+
+
+  Game.addBlocker("difficulty");
+  var setDifficulty = function setDifficulty(difficulty) {
+    eltMenu.classList.add("hidden");
+    var settings = DifficultySettings[difficulty];
+    for (var k in settings) {
+      console.log("Setting", k, "to", settings[k]);
+      Options[k] = settings[k];
+    }
+    Game.removeBlocker("difficulty");
+  };
+
+  eltDifficulty1.addEventListener("click", function() {
+    setDifficulty(0);
+  });
+  eltDifficulty2.addEventListener("click", function() {
+    setDifficulty(1);
+  });
+  eltDifficulty3.addEventListener("click", function() {
+    setDifficulty(2);
+  });
 
   // Exported code
   window.Piranhas = {

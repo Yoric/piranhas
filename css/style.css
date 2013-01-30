@@ -59,3 +59,25 @@ body {
 .ribbon_left a {
     text-decoration: none;
 }
+#menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: table;
+}
+#menu .list {
+    list-style-type: none;
+    display: table-cell;
+    vertical-align: middle;
+    horizontal-align: middle;
+}
+#menu .item {
+    padding: 5pt;
+    text-align: center;
+    margin: 5pt auto;
+    max-width: 50%;
+    text-decoration: none;
+}
+#menu a {
+    text-decoration: none;
+}

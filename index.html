@@ -40,8 +40,24 @@ Removed music until we find good music to play.
 <audio src="audio/music.ogg" autoplay="autoplay" controls="" loop="" style="display: none;"></audio>
 -->
 </div>
-<div class="hidden" id="info">
- <div id="ribbon_fork" class="ribbon_left">
+<div id="menu">
+  <div class="list">
+    <div class="item" id="difficulty_1">Casual</div>
+    <div class="item" id="difficulty_2">Hard</div>
+    <div class="item" id="difficulty_3">Impossible</div>
+    <div class="item"> <hr /> </div>
+    <div class="item">
+      <a href="http://github.com/Yoric/piranhas"
+      target="_blank"
+      onclick="event.stopPropagation();"
+      ontouchend="event.stopPropagation();">
+      About
+      </a>
+    </div>
+    <div class="item" id="ribbon_install">Install me</div>
+  </div>
+<!--
+  <div id="ribbon_fork" class="ribbon_left">
 <a href="http://github.com/Yoric/piranhas"
   target="_blank"
   onclick="event.stopPropagation();"
@@ -52,6 +68,7 @@ Removed music until we find good music to play.
  <div id="ribbon_install" class="ribbon_right">
     Install me
   </div>
+  -->
 </div>
 <div class="hidden" id="pause">
   <div>

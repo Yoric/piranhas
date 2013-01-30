@@ -261,8 +261,10 @@
       // FIXME: Workaround for a weird bug
       var size;
       if (typeof this._blockers.size == "function") {
+        console.log("Set size is a function");
         size = this._blockers.size();
       } else {
+        console.log("Set size is a property");
         size = this._blockers.size;
       }
       console.log("Removed blocker", blocker, size);

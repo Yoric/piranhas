@@ -112,8 +112,9 @@
   var DifficultySettings = [
     {
       difficulty: 0,
-      infiniteMode: false,
-      piranhaSpeedFactor: 0.1
+      spawnMore: false,
+      piranhaSpeedFactor: 0.1,
+      initialNumberOfPiranhas: Math.round(diagonal/30)
     },
     {
       difficulty: 1

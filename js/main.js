@@ -253,6 +253,7 @@
      * Once all blockers are removed, start the game.
      */
     addBlocker: function addBlocker(blocker) {
+      console.log("Add blocker", blocker);
       this._blockers.add(blocker);
     },
     removeBlocker: function removeBlocker(blocker) {
@@ -1053,6 +1054,7 @@
 
   Game.addBlocker("difficulty");
   var setDifficulty = function setDifficulty(difficulty) {
+    console.log("Setting difficulty to level", difficulty);
     eltMenu.classList.add("hidden");
     var settings = DifficultySettings[difficulty];
     for (var k in settings) {
@@ -1069,6 +1071,15 @@
     setDifficulty(1);
   });
   eltDifficulty3.addEventListener("click", function() {
+    setDifficulty(2);
+  });
+  eltDifficulty1.addEventListener("touchend", function() {
+    setDifficulty(0);
+  });
+  eltDifficulty2.addEventListener("touchend", function() {
+    setDifficulty(1);
+  });
+  eltDifficulty3.addEventListener("touchend", function() {
     setDifficulty(2);
   });
 

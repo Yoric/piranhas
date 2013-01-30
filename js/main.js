@@ -264,8 +264,8 @@
       } else {
         size = this._blockers.size;
       }
-      console.log("Removed blocker", blocker, this._blockers.size);
-      if (this._blockers.size == 0) {
+      console.log("Removed blocker", blocker, size);
+      if (size == 0) {
         // Fetch previous high score and start game
         var request = db.
               transaction("scorePerDifficulty").

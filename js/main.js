@@ -1024,10 +1024,11 @@
     request.onsuccess = function onsuccess() {
       if (request.result && request.result.manifest.name) {
         console.log("Application is already installed", request);
-        eltInstall.style.visibility = "hidden";
-        return;
       } else {
         console.log("Application isn't installed yet", request);
+        eltInstall.classList.remove("invisible");
+        eltInstall.classList.add("visible");
+        return;
       }
       console.log("Setting up installer", request);
       var install = function install(event) {

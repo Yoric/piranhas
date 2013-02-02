@@ -32,6 +32,16 @@ body {
 .hidden {
     visibility: hidden;
 }
+.invisible {
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 1s;
+}
+.visible {
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 1s;
+}
 #pause {
     width: 100%;
     text-align: center;

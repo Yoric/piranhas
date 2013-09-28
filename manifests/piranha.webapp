@@ -1,5 +1,5 @@
 {
-  "name": "Caramba, Piranhas!",
+  "appcache_path": "/piranhas/manifests/piranhas.appcache",
   "description": "An 8 bit-styled game of reflexes about friendship, adversity, destiny and piranhas. Or at least about piranhas.",
   "developer": {
     "name": "David Rajchenbach-Teller and Students of Université d'Évry, France",
@@ -13,5 +13,6 @@
     "256": "/piranhas/img/icon_256.png"
   },
   "launch_path": "/piranhas/index.html",
-  "version": "2013020308361359876988"
+  "name": "Caramba, Piranhas!",
+  "version": "20130928210045"
 }

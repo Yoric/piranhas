@@ -16,6 +16,7 @@ body {
 .title {
     position: absolute;
     bottom: 0;
+    pointer-events:none
 }
 #scores {
     width: 100%;

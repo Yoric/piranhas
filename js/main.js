@@ -585,6 +585,9 @@
       state.me.y = boundBy(myY + state.delta.y * player_multiply,
         0, (height-sombreroPictureSize));//not overpass screen delimitation
 
+      if (state.piranhas == null) {
+        state.piranhas = [];
+      }
       for (var i = 0; i < state.piranhas.length; ++i) {
         var fish = state.piranhas[i];
         if (!fish) {  // Don't update for dead fishes
@@ -1024,11 +1027,11 @@
     request.onsuccess = function onsuccess() {
       if (request.result && request.result.manifest.name) {
         console.log("Application is already installed", request);
+        return;
       } else {
         console.log("Application isn't installed yet", request);
         eltInstall.classList.remove("invisible");
         eltInstall.classList.add("visible");
-        return;
       }
       console.log("Setting up installer", request);
       var install = function install(event) {
@@ -1047,6 +1050,7 @@
         };
       };
       eltInstall.addEventListener("click", install);
+      eltInstall.addEventListener("touchstart", install);
       eltInstall.addEventListener("touchend", install);
     };
   } else {

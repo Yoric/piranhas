@@ -1,5 +1,5 @@
 {
-  "appcache_path": "/piranhas/manifests/piranhas.appcache",
+  "appcache_path": "/piranhas/manifests/piranha.appcache",
   "description": "An 8 bit-styled game of reflexes about friendship, adversity, destiny and piranhas. Or at least about piranhas.",
   "developer": {
     "name": "David Rajchenbach-Teller and Students of Université d'Évry, France",
